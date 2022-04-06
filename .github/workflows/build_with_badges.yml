@@ -230,7 +230,7 @@ jobs:
             WARNS_PER_LINE=$(( 100 * $TOTAL_WARNINGS / $LINES))
           fi
 
-          CLEAN_PERCENT = 100
+          declare CLEAN_PERCENT = 100
           if [ $LINES -gt 0 ]; then
             CLEAN_PERCENT=$(( $LINES - $TOTAL_WARNINGS - $QL_NOTES ))
             CLEAN_PERCENT=$(( 100 * $CLEAN_PERCENT / $LINES ))
