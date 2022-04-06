@@ -139,7 +139,7 @@ jobs:
 
       - name: "Issue Count"
         id: count
-        uses: kazupon/issue-count-action
+        uses: kazupon/issue-count-action@master
         with:
           github-token: ${{ github.token }}
           state: open
