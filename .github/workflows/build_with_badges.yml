@@ -83,14 +83,14 @@ jobs:
 
         shell: bash
         run: |
-          repo=$(echo ${{ github.repository }} | awk -F'/' '{print $2}')
-          results=$(cat /home/runner/work/**/*.sarif | jq -r '.runs[].results[].ruleId')
-          resultsArray=($results)
+          declare repo=$(echo ${{ github.repository }} | awk -F'/' '{print $2}')
+          declare results=$(cat /home/runner/work/**/*.sarif | jq -r '.runs[].results[].ruleId')
+          declare resultsArray=($results)
 
           echo "${resultsArray[*]}"
-          errorCount=0
-          warningCount=0
-          noteCount=0
+          declare errorCount=0
+          declare warningCount=0
+          declare noteCount=0
 
           # TODO: see if we can count occurrences instead of using a for loop
           for var in "${resultsArray[@]}"
@@ -170,9 +170,9 @@ jobs:
         id: count
         shell: bash
         run: |
-          COUNT_NO_MERGES = $(git rev-list --no-merges --count HEAD)
-          COUNT_MERGES = $(git rev-list --count HEAD)
-          MERGES = $(($COUNT_MERGES - $COUNT_NO_MERGES))
+          declare COUNT_NO_MERGES=$(git rev-list --no-merges --count HEAD)
+          declare COUNT_MERGES=$(git rev-list --count HEAD)
+          declare MERGES=$(($COUNT_MERGES - $COUNT_NO_MERGES))
 
           echo "##[set-output name=count;]$COUNT_NO_MERGES"
           echo "##[set-output name=merges;]$MERGES"
@@ -212,23 +212,23 @@ jobs:
         run: |
           mkdir -p ./.github/badges
 
-          LINES_PER_PR = "?"
+          declare LINES_PER_PR="?"
           if [ $PR_ISSUES -gt 0 ] && [ $LINES -gt 0 ]; then
             LINES_PER_PR = $(($LINES / $PR_ISSUES))
           fi
 
-          TOTAL_ERRORS   = $(($QL_ERRORS + $MK_ERRORS))
-          TOTAL_WARNINGS = $(($TOTAL_ERRORS + $MK_WARNINGS + $QL_WARNINGS))
+          declare TOTAL_ERRORS=$(($QL_ERRORS + $MK_ERRORS))
+          declare TOTAL_WARNINGS=$(($TOTAL_ERRORS + $MK_WARNINGS + $QL_WARNINGS))
 
-          WARNS_PERCENT = 0
+          declare WARNS_PERCENT=0
           if [ $LINES -gt 0 ]; then
-            WARNS_PER_LINE = $(( 100 * $TOTAL_WARNINGS / $LINES))
+            WARNS_PER_LINE=$(( 100 * $TOTAL_WARNINGS / $LINES))
           fi
 
           CLEAN_PERCENT = 100
           if [ $LINES -gt 0 ]; then
-            CLEAN_PERCENT = $(( $LINES - $TOTAL_WARNINGS - $QL_NOTES ))
-            CLEAN_PERCENT = $(( 100 * $CLEAN_PERCENT / $LINES ))
+            CLEAN_PERCENT=$(( $LINES - $TOTAL_WARNINGS - $QL_NOTES ))
+            CLEAN_PERCENT=$(( 100 * $CLEAN_PERCENT / $LINES ))
           fi
 
           echo "##[set-output name=lines-per-pr;]$LINES_PER_PR"
