@@ -51,6 +51,7 @@ jobs:
       # Initializes the CodeQL tools for scanning.
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v2
+        continue-on-error: true
         # Override language selection by uncommenting this and choosing your languages
         # with:
         #   languages: go, javascript, csharp, python, cpp, java
@@ -59,6 +60,7 @@ jobs:
       # If this step fails, then you should remove it and run the build manually (see below).
       - name: Autobuild
         uses: github/codeql-action/autobuild@v2
+        if: ${{ success() }}
 
       # ℹ️ Command-line programs to run using the OS shell.
       # 📚 https://git.io/JvXDl
@@ -73,6 +75,7 @@ jobs:
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2
+        if: ${{ success() }}
         with:
           add-snippets: true
           wait-for-processing: true
@@ -80,6 +83,8 @@ jobs:
       # Count the errors
       - name: Detect Errors
         id: count
+
+        if: ${{ success() }}
 
         shell: bash
         run: |
