@@ -80,6 +80,8 @@ jobs:
       # Count the errors
       - name: Detect Errors
         id: count
+
+        shell: bash
         run: |
           repo=$(echo ${{ github.repository }} | awk -F'/' '{print $2}')
           results=$(cat /home/runner/work/**/*.sarif | jq -r '.runs[].results[].ruleId')
@@ -137,7 +139,7 @@ jobs:
 
       - name: "Issue Count"
         id: count
-        uses: kazupon/issue-count-action@v1
+        uses: kazupon/issue-count-action
         with:
           github-token: ${{ github.token }}
           state: open
@@ -166,10 +168,12 @@ jobs:
 
       - name: "Commit Count"
         id: count
+        shell: bash
         run: |
           COUNT_NO_MERGES = $(git rev-list --no-merges --count HEAD)
           COUNT_MERGES = $(git rev-list --count HEAD)
           MERGES = $(($COUNT_MERGES - $COUNT_NO_MERGES))
+
           echo "##[set-output name=count;]$COUNT_NO_MERGES"
           echo "##[set-output name=merges;]$MERGES"
 
@@ -204,6 +208,7 @@ jobs:
           QL_WARNINGS: ${{ needs.CodeQL.outputs.warnings }}
           QL_ERRORS: ${{ needs.CodeQL.outputs.errors }}
 
+        shell: bash
         run: |
           mkdir -p ./.github/badges
 
