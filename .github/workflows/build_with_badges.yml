@@ -131,39 +131,24 @@ jobs:
       - name: "Checkout"
         uses: actions/checkout@v3
 
-  Issues:
-    # A job to count the current open issues in the repository.
-    outputs:
-      count: ${{ steps.count.outputs.count }}
-
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: "Checkout"
-        uses: actions/checkout@v3
-
-      - name: "Issue Count"
-        id: count
-        uses: kazupon/issue-count-action@master
-        with:
-          github-token: ${{ github.token }}
-          state: open
-
   GitCounts:
-    # A job to count several statistics in the repository itself
+    # A job to count several statistics
     # Counts:
     #   - commits
     #   - merges
     #   - branches
     #   - total lines of code
     #   - contributors
+    #   - open issues
+    name: "Git Statistics"
 
     outputs:
-      count: ${{ steps.count.outputs.count }}
-      merges: ${{ steps.count.outputs.merges }}
-      branches: ${{ steps.count.outputs.branches }}
-      contributors: ${{ steps.count.outputs.count }}
-      lines: ${{ steps.count.outputs.count }}
+      commits: ${{ steps.commits.outputs.count }}
+      merges: ${{ steps.commits.outputs.merges }}
+      branches: ${{ steps.branches.outputs.count }}
+      contributors: ${{ steps.contributors.outputs.count }}
+      lines: ${{ steps.lines.outputs.count }}
+      issues: ${{ steps.issues.outputs.count }}
 
     runs-on: ubuntu-latest
 
@@ -171,8 +156,8 @@ jobs:
       - name: "Checkout"
         uses: actions/checkout@v3
 
-      - name: "Commit Count"
-        id: count
+      - name: "Commit & Merge Count"
+        id: commits
         shell: bash
         run: |
           declare COUNT_NO_MERGES=$(git rev-list --no-merges --count HEAD)
@@ -182,14 +167,27 @@ jobs:
           echo "##[set-output name=count;]$COUNT_NO_MERGES"
           echo "##[set-output name=merges;]$MERGES"
 
-          # Count branches
-          echo "##[set-output name=branches;]$(git branch | wc -l)"
+      - name: "Branch Count"
+        id: branches
+        run: |
+          echo "##[set-output name=count;]$(git branch | wc -l)"
 
-          # Count contributors
-          echo "##[set-output name=contributors;]$(git shortlog -s | wc -l)"
+      - name: "Contributor Count"
+        id: contributors
+        run: |
+          echo "##[set-output name=count;]$(git shortlog -s | wc -l)"
 
-          # Count lines of code
-          echo "##[set-output name=lines;]$(git ls-files | xargs wc -l | awk '{print $1}' | paste -sd+ | bc)"
+      - name: "Line Count"
+        id: lines
+        run: |
+          echo "##[set-output name=count;]$(git ls-files | xargs wc -l | awk '{print $1}' | paste -sd+ | bc)"
+
+      - name: "Issue Count"
+        id: issues
+        uses: kazupon/issue-count-action@master
+        with:
+          github-token: ${{ github.token }}
+          state: open
 
   GenBadges:
     # A job to generate badges for the current repository.
@@ -198,25 +196,52 @@ jobs:
     # - Number of contributors
     # - Number of open issues
     # - Number of lines of code
-    needs: [CodeQL, Make, GitCounts, Issues]
+    needs: [CodeQL, Make, GitCounts]
     runs-on: ubuntu-latest
 
     steps:
       - name: "Checkout"
         uses: actions/checkout@v3
 
-      - name: "Calculations"
-        id: calcs
+      # If a task fails, we want to set the resulting variable to 0
+      - name: "Defaults"
+        id: defaults
         env:
-          LINES: ${{ needs.GitCounts.outputs.lines }}
-          PR_ISSUES: ${{ needs.Issues.outputs.count }}
           MK_WARNINGS: ${{ needs.Make.outputs.warnings }}
           MK_ERRORS: ${{ needs.Make.outputs.errors }}
+
           QL_NOTES: ${{ needs.CodeQL.outputs.notes }}
           QL_WARNINGS: ${{ needs.CodeQL.outputs.warnings }}
           QL_ERRORS: ${{ needs.CodeQL.outputs.errors }}
 
-        shell: bash
+        run: |
+          declare MK_WARNINGS=${MK_WARNINGS:-0}
+          declare MK_ERRORS=${MK_ERRORS:-0}
+
+          declare QL_NOTES=${QL_NOTES:-0}
+          declare QL_WARNINGS=${QL_WARNINGS:-0}
+          declare QL_ERRORS=${QL_ERRORS:-0}
+
+          echo "##[set-output name=warnings;]$MK_WARNINGS"
+          echo "##[set-output name=errors;]$MK_ERRORS"
+
+          echo "##[set-output name=notes;]$QL_NOTES"
+          echo "##[set-output name=warnings;]$QL_WARNINGS"
+          echo "##[set-output name=errors;]$QL_ERRORS"
+
+      - name: "Calculations"
+        id: calcs
+        env:
+          LINES: ${{ needs.GitCounts.outputs.lines }}
+          PR_ISSUES: ${{ needs.GitCounts.outputs.issues }}
+
+          MK_WARNINGS: ${{ steps.defaults.outputs.warnings }}
+          MK_ERRORS: ${{ steps.defaults.outputs.errors }}
+
+          QL_NOTES: ${{ steps.defaults.outputs.notes }}
+          QL_WARNINGS: ${{ steps.defaults.outputs.warnings }}
+          QL_ERRORS: ${{ steps.defaults.outputs.errors }}
+
         run: |
           mkdir -p ./.github/badges
 
@@ -348,6 +373,8 @@ jobs:
         uses: actions-x/commit@v2
         with:
           message: "Update Badges"
+          email: actions@github.com
+          name: GitHub Actions
 
   CommentBadges:
     # TODO: finish https://github.com/emibcn/pywisp/blob/master/.github/workflows/test.yml#L178
