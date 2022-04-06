@@ -343,9 +343,9 @@ jobs:
 
       - name: "Commit badges"
         continue-on-error: true
-        env:
-          BADGE: ${{ steps.coverage.outputs.path }}
         run: |
+          ls
+          pwd
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add ".github/badges/.*"
