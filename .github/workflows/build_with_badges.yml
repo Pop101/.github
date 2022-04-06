@@ -140,6 +140,7 @@ jobs:
     #   - total lines of code
     #   - contributors
     #   - open issues
+    name: "Git Statistics"
 
     outputs:
       commits: ${{ steps.commits.outputs.commits }}
@@ -154,6 +155,13 @@ jobs:
     steps:
       - name: "Checkout"
         uses: actions/checkout@v3
+
+      - name: "Issue Count"
+        id: issues
+        uses: kazupon/issue-count-action@master
+        with:
+          github-token: ${{ github.token }}
+          state: open
 
       - name: "Commit & Merge Count"
         id: commits
@@ -180,13 +188,6 @@ jobs:
         id: lines
         run: |
           echo "##[set-output name=lines;]$(git ls-files | xargs wc -l | awk '{print $1}' | paste -sd+ | bc)"
-
-      - name: "Issue Count"
-        id: issues
-        uses: kazupon/issue-count-action@master
-        with:
-          github-token: ${{ github.token }}
-          state: open
 
   GenBadges:
     # A job to generate badges for the current repository.
@@ -336,7 +337,7 @@ jobs:
       - name: "Generate Grade Percent Badge"
         uses: emibcn/badge-action@v1
         with:
-          label: "🛈 Code Grade"
+          label: "𝄎 Code Grade"
           status: "${{ steps.calcs.outputs.clean-percent }}%"
           color: ${{
             steps.calcs.outputs.clean-percent > 90 && 'green'              ||
@@ -353,7 +354,7 @@ jobs:
       - name: "Generate Letter Grade Badge"
         uses: emibcn/badge-action@v1
         with:
-          label: "𝄎 Code Grade"
+          label: "🛈 Code Grade"
           status: ${{
             steps.calcs.outputs.clean-percent > 90 && 'A+'    ||
             steps.calcs.outputs.clean-percent > 80 && 'A'     ||
