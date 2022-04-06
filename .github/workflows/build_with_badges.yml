@@ -341,31 +341,10 @@ jobs:
             'red' }}
           path: .github/badges/grade_letter.svg
 
-      - name: "Commit badges"
-        continue-on-error: true
-        run: |
-          pwd
-
-          ls -a
-          cd ..
-          echo ".."
-          ls -a
-          echo ".."
-          cd ..
-          ls -a
-          echo ".."
-
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add ".github/badges/.*"
-          git commit -m "Update badges"
-
-      - name: "Push badge commit"
-        uses: ad-m/github-push-action@master
-        if: ${{ success() }}
+      - name: push
+        uses: actions-x/commit@v2
         with:
-          github_token: ${{ github.token }}
-          branch: badges
+          message: "Update Badges"
 
   CommentBadges:
     # TODO: finish https://github.com/emibcn/pywisp/blob/master/.github/workflows/test.yml#L178
