@@ -245,7 +245,7 @@ jobs:
         run: |
           mkdir -p ./.github/badges
 
-          declare LINES_PER_PR="?"
+          declare LINES_PER_PR=$LINES
           if [ $PR_ISSUES -gt 0 ] && [ $LINES -gt 0 ]; then
             LINES_PER_PR = $(($LINES / $PR_ISSUES))
           fi
@@ -330,7 +330,7 @@ jobs:
         uses: emibcn/badge-action@v1
         with:
           label: "Code Grade"
-          status: ${{ steps.calcs.outputs.clean-percent }}
+          status: "${{ steps.calcs.outputs.clean-percent }}%"
           color: ${{
             steps.calcs.outputs.clean-percent > 90 && 'green'              ||
             steps.calcs.outputs.clean-percent > 80 && 'yellow,green'       ||
