@@ -124,8 +124,6 @@ jobs:
       - name: "Checkout"
         uses: actions/checkout@v3
 
-      - name: "Make"
-
   Issues:
     # A job to count the current open issues in the repository.
     outputs:
@@ -366,6 +364,7 @@ jobs:
         run: |
           echo "Badge: ${BADGE}"
           echo "${BADGE}" > output.md
+
       - name: Comment PR with test coverage badge
         uses: marocchino/sticky-pull-request-comment@v2
         with:
