@@ -281,7 +281,7 @@ jobs:
       - name: "Generate Contributor Badge"
         uses: emibcn/badge-action@v1
         with:
-          label: "🫂 Contributors"
+          label: "⩆ Contributors"
           status: ${{ needs.GitCounts.outputs.contributors }}
           color: green
           path: .github/badges/contributor_count.svg
@@ -297,7 +297,7 @@ jobs:
       - name: "Generate PR Issue Badge"
         uses: emibcn/badge-action@v1
         with:
-          label: "✖️ PR Issues"
+          label: "⤫ PR Issues"
           status: ${{ needs.GitCounts.outputs.issues }}
           color: red
           path: .github/badges/pr_issue_count.svg
@@ -337,7 +337,7 @@ jobs:
       - name: "Generate Grade Percent Badge"
         uses: emibcn/badge-action@v1
         with:
-          label: "🎓 Code Grade"
+          label: "ℹ Code Grade"
           status: "${{ steps.calcs.outputs.clean-percent }}%"
           color: ${{
             steps.calcs.outputs.clean-percent > 90 && 'green'              ||
