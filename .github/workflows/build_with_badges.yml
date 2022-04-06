@@ -344,6 +344,7 @@ jobs:
       - name: "Commit badges"
         continue-on-error: true
         run: |
+          cd ..
           ls
           pwd
           git config --local user.email "action@github.com"
