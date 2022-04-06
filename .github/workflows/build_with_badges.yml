@@ -60,7 +60,7 @@ jobs:
       # If this step fails, then you should remove it and run the build manually (see below).
       - name: Autobuild
         uses: github/codeql-action/autobuild@v2
-        if: succeeded()
+        if: ${{ success() }}
 
       # ℹ️ Command-line programs to run using the OS shell.
       # 📚 https://git.io/JvXDl
@@ -75,7 +75,7 @@ jobs:
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2
-        if: succeeded()
+        if: ${{ success() }}
         with:
           add-snippets: true
           wait-for-processing: true
