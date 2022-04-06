@@ -140,14 +140,13 @@ jobs:
     #   - total lines of code
     #   - contributors
     #   - open issues
-    name: "Git Statistics"
 
     outputs:
-      commits: ${{ steps.commits.outputs.count }}
+      commits: ${{ steps.commits.outputs.commits }}
       merges: ${{ steps.commits.outputs.merges }}
-      branches: ${{ steps.branches.outputs.count }}
-      contributors: ${{ steps.contributors.outputs.count }}
-      lines: ${{ steps.lines.outputs.count }}
+      branches: ${{ steps.branches.outputs.branches }}
+      contributors: ${{ steps.contributors.outputs.contrib }}
+      lines: ${{ steps.lines.outputs.lines }}
       issues: ${{ steps.issues.outputs.count }}
 
     runs-on: ubuntu-latest
@@ -164,23 +163,23 @@ jobs:
           declare COUNT_MERGES=$(git rev-list --count HEAD)
           declare MERGES=$(($COUNT_MERGES - $COUNT_NO_MERGES))
 
-          echo "##[set-output name=count;]$COUNT_NO_MERGES"
+          echo "##[set-output name=commits;]$COUNT_NO_MERGES"
           echo "##[set-output name=merges;]$MERGES"
 
       - name: "Branch Count"
         id: branches
         run: |
-          echo "##[set-output name=count;]$(git branch | wc -l)"
+          echo "##[set-output name=branches;]$(git branch | wc -l)"
 
       - name: "Contributor Count"
         id: contributors
         run: |
-          echo "##[set-output name=count;]$(git shortlog -s | wc -l)"
+          echo "##[set-output name=contrib;]$(git shortlog -s | wc -l)"
 
       - name: "Line Count"
         id: lines
         run: |
-          echo "##[set-output name=count;]$(git ls-files | xargs wc -l | awk '{print $1}' | paste -sd+ | bc)"
+          echo "##[set-output name=lines;]$(git ls-files | xargs wc -l | awk '{print $1}' | paste -sd+ | bc)"
 
       - name: "Issue Count"
         id: issues
@@ -337,7 +336,7 @@ jobs:
       - name: "Generate Grade Percent Badge"
         uses: emibcn/badge-action@v1
         with:
-          label: "ℹ Code Grade"
+          label: "🛈 Code Grade"
           status: "${{ steps.calcs.outputs.clean-percent }}%"
           color: ${{
             steps.calcs.outputs.clean-percent > 90 && 'green'              ||
