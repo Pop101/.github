@@ -274,7 +274,7 @@ jobs:
         uses: emibcn/badge-action@v1
         with:
           label: "🗸 Commits"
-          status: ${{ needs.GitCounts.outputs.count }}
+          status: ${{ needs.GitCounts.outputs.commits }}
           color: blue
           path: .github/badges/commit_count.svg
 
@@ -283,6 +283,7 @@ jobs:
         with:
           label: "Contributors"
           status: ${{ needs.GitCounts.outputs.contributors }}
+          icon: user
           color: green
           path: .github/badges/contributor_count.svg
 
@@ -290,7 +291,7 @@ jobs:
         uses: emibcn/badge-action@v1
         with:
           label: "PR Issues"
-          status: ${{ needs.Issues.outputs.count }}
+          status: ${{ needs.GitCounts.outputs.issues }}
           color: red
           path: .github/badges/pr_issue_count.svg
 
