@@ -281,16 +281,23 @@ jobs:
       - name: "Generate Contributor Badge"
         uses: emibcn/badge-action@v1
         with:
-          label: "Contributors"
+          label: "🫂 Contributors"
           status: ${{ needs.GitCounts.outputs.contributors }}
-          icon: user
           color: green
           path: .github/badges/contributor_count.svg
+
+      - name: "Generate Merges Badge"
+        uses: emibcn/badge-action@v1
+        with:
+          label: "⤞ Merges"
+          status: ${{ needs.GitCounts.outputs.merges }}
+          color: blue
+          path: .github/badges/merge_count.svg
 
       - name: "Generate PR Issue Badge"
         uses: emibcn/badge-action@v1
         with:
-          label: "PR Issues"
+          label: "✖️ PR Issues"
           status: ${{ needs.GitCounts.outputs.issues }}
           color: red
           path: .github/badges/pr_issue_count.svg
@@ -298,7 +305,7 @@ jobs:
       - name: "Generate Lines of Code Badge"
         uses: emibcn/badge-action@v1
         with:
-          label: "Lines of Code"
+          label: "🖋 Lines of Code"
           status: ${{ needs.GitCounts.outputs.lines }}
           color: blue
           path: .github/badges/lines_of_code.svg
@@ -306,7 +313,7 @@ jobs:
       - name: "Generate Warnings Badge"
         uses: emibcn/badge-action@v1
         with:
-          label: "Warnings"
+          label: "🏲 Warnings"
           status: ${{ steps.calcs.outputs.total-warnings }}
           color: yellow
           path: .github/badges/warnings_count.svg
@@ -314,7 +321,7 @@ jobs:
       - name: "Generate Error Badge"
         uses: emibcn/badge-action@v1
         with:
-          label: "Errors"
+          label: "❢ Errors"
           status: ${{ steps.calcs.outputs.total-errors }}
           color: red
           path: .github/badges/errors_count.svg
@@ -322,7 +329,7 @@ jobs:
       - name: "Generate Lines per PR Badge"
         uses: emibcn/badge-action@v1
         with:
-          label: "Lines per Issue"
+          label: "≡ Lines per Issue"
           status: ${{ steps.calcs.outputs.lines-per-pr }}
           color: blue
           path: .github/badges/lines_per_pr.svg
@@ -330,7 +337,7 @@ jobs:
       - name: "Generate Grade Percent Badge"
         uses: emibcn/badge-action@v1
         with:
-          label: "Code Grade"
+          label: "🎓 Code Grade"
           status: "${{ steps.calcs.outputs.clean-percent }}%"
           color: ${{
             steps.calcs.outputs.clean-percent > 90 && 'green'              ||
@@ -347,7 +354,7 @@ jobs:
       - name: "Generate Letter Grade Badge"
         uses: emibcn/badge-action@v1
         with:
-          label: "Code Grade"
+          label: "𝄎 Code Grade"
           status: ${{
             steps.calcs.outputs.clean-percent > 90 && 'A+'    ||
             steps.calcs.outputs.clean-percent > 80 && 'A'     ||
