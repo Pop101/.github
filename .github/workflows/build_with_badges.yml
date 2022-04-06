@@ -1,0 +1,373 @@
+name: "Code Scanning"
+
+on:
+  push:
+    branches:
+      - "*"
+      - "!badges"
+    paths-ignore:
+      - "**/*.md"
+      - "**/*.txt"
+      - ".gitignore"
+      - "LICENSE"
+  pull_request:
+    branches: [main]
+    paths-ignore:
+      - "**/*.md"
+      - "**/*.txt"
+  schedule:
+    #        ┌───────────── minute (0 - 59)
+    #        │  ┌───────────── hour (0 - 23)
+    #        │  │ ┌───────────── day of the month (1 - 31)
+    #        │  │ │ ┌───────────── month (1 - 12 or JAN-DEC)
+    #        │  │ │ │ ┌───────────── day of the week (0 - 6 or SUN-SAT)
+    #        │  │ │ │ │
+    #        │  │ │ │ │
+    #        │  │ │ │ │
+    #        *  * * * *
+    - cron: "30 1 * * 0"
+
+jobs:
+  CodeQL:
+    outputs:
+      errors: ${{ steps.count.outputs.errors }}
+      warnings: ${{ steps.count.outputs.warnings }}
+      notes: ${{ steps.count.outputs.notes }}
+    # CodeQL runs on ubuntu-latest, windows-latest, and macos-latest
+    runs-on: ubuntu-latest
+
+    permissions:
+      # required for all workflows
+      security-events: write
+
+      # only required for workflows in private repositories
+      actions: read
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Initializes the CodeQL tools for scanning.
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        # Override language selection by uncommenting this and choosing your languages
+        # with:
+        #   languages: go, javascript, csharp, python, cpp, java
+
+      # Autobuild attempts to build any compiled languages (C/C++, C#, or Java).
+      # If this step fails, then you should remove it and run the build manually (see below).
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v2
+
+      # ℹ️ Command-line programs to run using the OS shell.
+      # 📚 https://git.io/JvXDl
+
+      # ✏️ If the Autobuild fails above, remove it and uncomment the following
+      #    three lines and modify them (or add more) to build your code if your
+      #    project uses a compiled language
+
+      #- run: |
+      #     make bootstrap
+      #     make release
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
+        with:
+          add-snippets: true
+          wait-for-processing: true
+
+      # Count the errors
+      - name: Detect Errors
+        id: count
+        run: |
+          repo=$(echo ${{ github.repository }} | awk -F'/' '{print $2}')
+          results=$(cat /home/runner/work/**/*.sarif | jq -r '.runs[].results[].ruleId')
+          resultsArray=($results)
+
+          echo "${resultsArray[*]}"
+          errorCount=0
+          warningCount=0
+          noteCount=0
+
+          # TODO: see if we can count occurrences instead of using a for loop
+          for var in "${resultsArray[@]}"
+          do
+            severity=$(cat /home/runner/work/**/*.sarif | jq -r '.runs[].tool.driver.rules[] | select(.id=="'$var'").properties."problem.severity"')
+            echo "${var} | $severity"
+            if [ "$severity" == "warning" ]; then let warningCount+=1; fi
+            if [ "$severity" == "error" ]; then let errorount+=1; fi
+            if [ "$severity" == "note" ]; then let noteount+=1; fi
+          done
+
+          echo ""
+          echo "Error Count: $errorCount"
+          echo "Warning Count: $warningCount"
+          echo "Note Count: $noteCount"
+          echo ""
+
+          echo "##[set-output name=errors;]$errorCount"
+          echo "##[set-output name=warnings;]$warningCount"
+          echo "##[set-output name=notes;]$noteCount"
+
+  Make:
+    # A job to execute the current make file and count the number of warnings
+    # and errors.
+
+    outputs:
+      warnings: ${{ steps.count.outputs.warnings }}
+      errors: ${{ steps.count.outputs.errors }}
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v3
+
+      - name: "Make"
+
+  Issues:
+    # A job to count the current open issues in the repository.
+    outputs:
+      count: ${{ steps.count.outputs.count }}
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v3
+
+      - name: "Issue Count"
+        id: count
+        uses: kazupon/issue-count-action@v1
+        with:
+          github-token: ${{ github.token }}
+          state: open
+
+  GitCounts:
+    # A job to count several statistics in the repository itself
+    # Counts:
+    #   - commits
+    #   - merges
+    #   - branches
+    #   - total lines of code
+    #   - contributors
+
+    outputs:
+      count: ${{ steps.count.outputs.count }}
+      merges: ${{ steps.count.outputs.merges }}
+      branches: ${{ steps.count.outputs.branches }}
+      contributors: ${{ steps.count.outputs.count }}
+      lines: ${{ steps.count.outputs.count }}
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v3
+
+      - name: "Commit Count"
+        id: count
+        run: |
+          COUNT_NO_MERGES = $(git rev-list --no-merges --count HEAD)
+          COUNT_MERGES = $(git rev-list --count HEAD)
+          MERGES = $(($COUNT_MERGES - $COUNT_NO_MERGES))
+          echo "##[set-output name=count;]$COUNT_NO_MERGES"
+          echo "##[set-output name=merges;]$MERGES"
+
+          # Count branches
+          echo "##[set-output name=branches;]$(git branch | wc -l)"
+
+          # Count contributors
+          echo "##[set-output name=contributors;]$(git shortlog -s | wc -l)"
+
+          # Count lines of code
+          echo "##[set-output name=lines;]$(git ls-files | xargs wc -l | awk '{print $1}' | paste -sd+ | bc)"
+
+  GenBadges:
+    # A job to generate badges for the current repository.
+    # Badges are generated based on all the values calculated above:
+    # - Number of commits
+    # - Number of contributors
+    # - Number of open issues
+    # - Number of lines of code
+    needs: [CodeQL, Make, GitCounts, Issues]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: "Calculations"
+        id: calcs
+        env:
+          LINES: ${{ needs.GitCounts.outputs.lines }}
+          PR_ISSUES: ${{ needs.Issues.outputs.count }}
+          MK_WARNINGS: ${{ needs.Make.outputs.warnings }}
+          MK_ERRORS: ${{ needs.Make.outputs.errors }}
+          QL_NOTES: ${{ needs.CodeQL.outputs.notes }}
+          QL_WARNINGS: ${{ needs.CodeQL.outputs.warnings }}
+          QL_ERRORS: ${{ needs.CodeQL.outputs.errors }}
+
+        run: |
+          mkdir -p ./.github/badges
+
+          LINES_PER_PR = "?"
+          if [ $PR_ISSUES -gt 0 ] && [ $LINES -gt 0 ]; then
+            LINES_PER_PR = $(($LINES / $PR_ISSUES))
+          fi
+
+          TOTAL_ERRORS   = $(($QL_ERRORS + $MK_ERRORS))
+          TOTAL_WARNINGS = $(($TOTAL_ERRORS + $MK_WARNINGS + $QL_WARNINGS))
+
+          WARNS_PERCENT = 0
+          if [ $LINES -gt 0 ]; then
+            WARNS_PER_LINE = $(( 100 * $TOTAL_WARNINGS / $LINES))
+          fi
+
+          CLEAN_PERCENT = 100
+          if [ $LINES -gt 0 ]; then
+            CLEAN_PERCENT = $(( $LINES - $TOTAL_WARNINGS - $QL_NOTES ))
+            CLEAN_PERCENT = $(( 100 * $CLEAN_PERCENT / $LINES ))
+          fi
+
+          echo "##[set-output name=lines-per-pr;]$LINES_PER_PR"
+          echo "##[set-output name=total-errors;]$TOTAL_ERRORS"
+          echo "##[set-output name=total-warnings;]$TOTAL_WARNINGS"
+          echo "##[set-output name=warnings-percent;]$WARNS_PERCENT"
+          echo "##[set-output name=clean-percent;]$CLEAN_PERCENT"
+
+      - name: "Generate Commit Badge"
+        uses: emibcn/badge-action@v1
+        with:
+          label: "🗸 Commits"
+          status: ${{ needs.GitCounts.outputs.count }}
+          color: blue
+          path: .github/badges/commit_count.svg
+
+      - name: "Generate Contributor Badge"
+        uses: emibcn/badge-action@v1
+        with:
+          label: "Contributors"
+          status: ${{ needs.GitCounts.outputs.contributors }}
+          color: green
+          path: .github/badges/contributor_count.svg
+
+      - name: "Generate PR Issue Badge"
+        uses: emibcn/badge-action@v1
+        with:
+          label: "PR Issues"
+          status: ${{ needs.Issues.outputs.count }}
+          color: red
+          path: .github/badges/pr_issue_count.svg
+
+      - name: "Generate Lines of Code Badge"
+        uses: emibcn/badge-action@v1
+        with:
+          label: "Lines of Code"
+          status: ${{ needs.GitCounts.outputs.lines }}
+          color: blue
+          path: .github/badges/lines_of_code.svg
+
+      - name: "Generate Warnings Badge"
+        uses: emibcn/badge-action@v1
+        with:
+          label: "Warnings"
+          status: ${{ steps.calcs.outputs.total-warnings }}
+          color: yellow
+          path: .github/badges/warnings_count.svg
+
+      - name: "Generate Error Badge"
+        uses: emibcn/badge-action@v1
+        with:
+          label: "Errors"
+          status: ${{ steps.calcs.outputs.total-errors }}
+          color: red
+          path: .github/badges/errors_count.svg
+
+      - name: "Generate Lines per PR Badge"
+        uses: emibcn/badge-action@v1
+        with:
+          label: "Lines per Issue"
+          status: ${{ steps.calcs.outputs.lines-per-pr }}
+          color: blue
+          path: .github/badges/lines_per_pr.svg
+
+      - name: "Generate Grade Percent Badge"
+        uses: emibcn/badge-action@v1
+        with:
+          label: "Code Grade"
+          status: ${{ steps.calcs.outputs.clean-percent }}
+          color: ${{
+            steps.calcs.outputs.clean-percent > 90 && 'green'              ||
+            steps.calcs.outputs.clean-percent > 80 && 'yellow,green'       ||
+            steps.calcs.outputs.clean-percent > 70 && 'yellow'             ||
+            steps.calcs.outputs.clean-percent > 60 && 'orange,yellow'      ||
+            steps.calcs.outputs.clean-percent > 50 && 'orange'             ||
+            steps.calcs.outputs.clean-percent > 40 && 'red,orange'         ||
+            steps.calcs.outputs.clean-percent > 30 && 'red,red,orange'     ||
+            steps.calcs.outputs.clean-percent > 20 && 'red,red,red,orange' ||
+            'red' }}
+          path: .github/badges/grade_percent.svg
+
+      - name: "Generate Letter Grade Badge"
+        uses: emibcn/badge-action@v1
+        with:
+          label: "Code Grade"
+          status: ${{
+            steps.calcs.outputs.clean-percent > 90 && 'A+'    ||
+            steps.calcs.outputs.clean-percent > 80 && 'A'     ||
+            steps.calcs.outputs.clean-percent > 70 && 'B+'    ||
+            steps.calcs.outputs.clean-percent > 60 && 'B'     ||
+            steps.calcs.outputs.clean-percent > 50 && 'C+'    ||
+            steps.calcs.outputs.clean-percent > 40 && 'C'     ||
+            steps.calcs.outputs.clean-percent > 30 && 'D'     ||
+            steps.calcs.outputs.clean-percent > 20 && 'F'     ||
+            'Brain Damage' }}
+          color: ${{
+            steps.calcs.outputs.clean-percent > 90 && 'green'              ||
+            steps.calcs.outputs.clean-percent > 80 && 'yellow,green'       ||
+            steps.calcs.outputs.clean-percent > 70 && 'yellow'             ||
+            steps.calcs.outputs.clean-percent > 60 && 'orange,yellow'      ||
+            steps.calcs.outputs.clean-percent > 50 && 'orange'             ||
+            steps.calcs.outputs.clean-percent > 40 && 'red,orange'         ||
+            steps.calcs.outputs.clean-percent > 30 && 'red,red,orange'     ||
+            steps.calcs.outputs.clean-percent > 20 && 'red,red,red,orange' ||
+            'red' }}
+          path: .github/badges/grade_letter.svg
+
+      - name: "Commit badges"
+        continue-on-error: true
+        env:
+          BADGE: ${{ steps.coverage.outputs.path }}
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add ".github/badges/.*"
+          git commit -m "Update badges"
+
+      - name: "Push badge commit"
+        uses: ad-m/github-push-action@master
+        if: ${{ success() }}
+        with:
+          github_token: ${{ github.token }}
+          branch: badges
+
+  CommentBadges:
+    # TODO: finish https://github.com/emibcn/pywisp/blob/master/.github/workflows/test.yml#L178
+    name: Comment on PR with generated badge
+    needs: [GenBadges]
+    if: ${{ github.event_name == 'pull_request' && github.actor == github.repository_owner }}
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Generate comment file with all the badges
+        shell: bash
+        env:
+          BADGE: ${{ needs.badge.outputs.markdown }}
+        run: |
+          echo "Badge: ${BADGE}"
+          echo "${BADGE}" > output.md
+      - name: Comment PR with test coverage badge
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          recreate: true
+          path: output.md
