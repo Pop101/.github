@@ -171,7 +171,17 @@ jobs:
           declare COUNT_MERGES=$(git rev-list --count HEAD)
           declare MERGES=$(($COUNT_MERGES - $COUNT_NO_MERGES))
 
-          echo "##[set-output name=commits;]$COUNT_NO_MERGES"
+          echo "Commits No Merges: $COUNT_NO_MERGES"
+          echo "##[set-output name=commits]$COUNT_NO_MERGES"
+          echo "##[set-output name=merges;]$MERGES"
+
+      - name: "Commits this year"
+        id: commits-year
+        run: |
+          declare YEAR=$(date +%Y)
+          declare COUNT=$(git rev-list --count --since="$YEAR-01-01" HEAD)
+
+          echo "##[set-output name=1;]$COUNT_NO_MERGES"
           echo "##[set-output name=merges;]$MERGES"
 
       - name: "Branch Count"
