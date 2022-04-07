@@ -143,7 +143,7 @@ jobs:
     name: "Git Statistics"
 
     outputs:
-      commits: ${{ steps.commits.outputs.commits }}
+      commits: ${{ steps.commits.outputs.count }}
       merges: ${{ steps.commits.outputs.merges }}
       branches: ${{ steps.branches.outputs.branches }}
       contributors: ${{ steps.contributors.outputs.contrib }}
@@ -166,8 +166,7 @@ jobs:
           declare COUNT_MERGES=$(git rev-list --count HEAD)
           declare MERGES=$(($COUNT_MERGES - $COUNT_NO_MERGES))
 
-          echo "Commits No Merges: $COUNT_NO_MERGES"
-          echo "##[set-output name=commits;]$COUNT_NO_MERGES"
+          echo "##[set-output name=count;]$COUNT_NO_MERGES"
           echo "##[set-output name=merges;]$MERGES"
 
       - name: "Commits this year"
@@ -176,18 +175,20 @@ jobs:
           declare YEAR=$(date +%Y)
           declare COUNT=$(git rev-list --count --since="$YEAR-01-01" HEAD)
 
-          echo "##[set-output name=1;]$COUNT_NO_MERGES"
-          echo "##[set-output name=merges;]$MERGES"
+          echo "##[set-output name=count;]$COUNT"
 
       - name: "Branch Count"
         id: branches
         run: |
-          echo "##[set-output name=branches;]$(git branch | wc -l)"
+          git branch
+          git branch HEAD
+          echo "##[set-output name=branches;]$(git branch HEAD | wc -l)"
 
       - name: "Contributor Count"
         id: contributors
         run: |
-          echo "##[set-output name=contrib;]$(git shortlog -s | wc -l)"
+          git shortlog -s HEAD
+          echo "##[set-output name=contrib;]$(git shortlog -s HEAD | wc -l)"
 
       - name: "Line Count"
         id: lines
@@ -250,7 +251,7 @@ jobs:
         run: |
           mkdir -p ./.github/badges
 
-          declare LINES_PER_PR=$LINES
+          declare LINES_PER_PR="∞"
           if [ $PR_ISSUES -gt 0 ] && [ $LINES -gt 0 ]; then
             LINES_PER_PR = $(($LINES / $PR_ISSUES))
           fi
