@@ -156,13 +156,6 @@ jobs:
       - name: "Checkout"
         uses: actions/checkout@v3
 
-      - name: "Issue Count"
-        id: issues
-        uses: kazupon/issue-count-action@master
-        with:
-          github-token: ${{ github.token }}
-          state: open
-
       - name: "Commit & Merge Count"
         id: commits
         shell: bash
