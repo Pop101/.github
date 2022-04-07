@@ -167,12 +167,14 @@ jobs:
         id: commits
         shell: bash
         run: |
+          git pull
+
           declare COUNT_NO_MERGES=$(git rev-list --no-merges --count HEAD)
           declare COUNT_MERGES=$(git rev-list --count HEAD)
           declare MERGES=$(($COUNT_MERGES - $COUNT_NO_MERGES))
 
           echo "Commits No Merges: $COUNT_NO_MERGES"
-          echo "##[set-output name=commits]$COUNT_NO_MERGES"
+          echo "##[set-output name=commits;]$COUNT_NO_MERGES"
           echo "##[set-output name=merges;]$MERGES"
 
       - name: "Commits this year"
