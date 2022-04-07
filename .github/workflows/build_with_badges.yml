@@ -180,9 +180,9 @@ jobs:
       - name: "Branch Count"
         id: branches
         run: |
-          git branch
-          git branch HEAD
-          echo "##[set-output name=branches;]$(git branch HEAD | wc -l)"
+          declare COUNT=$(git branch --list --no-color | wc -l)
+          echo "Branches: $COUNT"
+          echo "##[set-output name=branches;]$COUNT"
 
       - name: "Contributor Count"
         id: contributors
