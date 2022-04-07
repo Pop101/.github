@@ -158,6 +158,13 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: "Issue Count"
+        id: issues
+        uses: kazupon/issue-count-action@master
+        with:
+          github-token: ${{ github.token }}
+          state: open
+
       - name: "Commit & Merge Count"
         id: commits
         shell: bash
@@ -181,7 +188,6 @@ jobs:
         id: branches
         run: |
           declare COUNT=$(git branch --list --no-color | wc -l)
-          echo "Branches: $COUNT"
           echo "##[set-output name=branches;]$COUNT"
 
       - name: "Contributor Count"
