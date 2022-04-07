@@ -162,8 +162,6 @@ jobs:
         id: commits
         shell: bash
         run: |
-          git fetch --prune --unshallow
-
           declare COUNT_NO_MERGES=$(git rev-list --no-merges --count HEAD)
           declare COUNT_MERGES=$(git rev-list --count HEAD)
           declare MERGES=$(($COUNT_MERGES - $COUNT_NO_MERGES))
