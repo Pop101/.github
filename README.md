@@ -1,5 +1,5 @@
 # Project Title
 
 ![[Image](./.github/badges/commit_count.svg)](/commits/main)
-![[Image](./.github/badges/contributor_count.svg)](/contributors)
+[<img alt="Commit Count" src=".github/badges/commit_count.svg" />](/commits/main)
 
