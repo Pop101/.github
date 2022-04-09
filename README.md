@@ -11,4 +11,5 @@
 ![Code Grade](.github/badges/grade_letter.svg)
 ![Code Grade](.github/badges/grade_percent.svg)
 ![Lines of Code](.github/badges/lines_of_code.svg)
-
+![Reading Level](.github/badges/reading_level.svg)
+![Variable Score](.github/badges/var_score.svg)
