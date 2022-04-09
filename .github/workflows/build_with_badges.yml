@@ -210,7 +210,7 @@ jobs:
       - name: "Word Count"
         id: words
         run: |
-          declare RAW_WORDS=$(tr '\n' ' ' | sed -E 's/[0-9]|[[:punct:]]/ /g; s/[[:space:]]+/ /g')
+          declare RAW_WORDS=$(git ls-files | xargs cat | tr '\n' ' ' | sed -E 's/[0-9]|[[:punct:]]/ /g; s/[[:space:]]+/ /g')
           declare WORDS=$(echo $RAW_WORDS | wc -w)
           declare CHARS=$(echo $RAW_WORDS | wc -c)
 
