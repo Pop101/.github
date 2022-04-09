@@ -8,7 +8,6 @@
 [<img alt="Merges" src=".github/badges/merge_count.svg" />](../../pulls)
 [<img alt="PR Issues" src=".github/badges/pr_issue_count.svg" />](../../issues)
 
-)
 [<img alt="Lines of Code" src=".github/badges/lines_of_code.svg" />](../..)
 [<img alt="Reading Level" src=".github/badges/reading_level.svg" />](../..)
 [<img alt="Variable Score" src=".github/badges/var_score.svg" />](../..)
