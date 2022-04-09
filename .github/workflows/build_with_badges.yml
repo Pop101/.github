@@ -216,6 +216,8 @@ jobs:
 
           declare AVG_WORD_LENGTH=$(( 100 * ($CHARS - $WORDS) / $WORDS ))
 
+          echo "Average Word Length: $AVG_WORD_LENGTH"
+
           declare UNIQUE_WORDS=$(echo $RAW_WORDS | tr ' ' '\n' | sort -u | wc -l)
           UNIQUE_WORDS=$(($UNIQUE_WORDS - 1))
 
@@ -306,6 +308,8 @@ jobs:
           if [ $LINES -gt 0 ]; then
             DRY_SCORE=$(( 100 * $UNIQUE_WORDS / $WORDS ))
           fi
+
+          echo "DRY_SCORE: $DRY_SCORE"
 
           echo "##[set-output name=lines-per-pr;]$LINES_PER_PR"
           echo "##[set-output name=total-errors;]$TOTAL_ERRORS"
@@ -458,6 +462,8 @@ jobs:
             steps.GitCounts.outputs.avg-word-length > 343 && 'red,red,orange'           ||
             steps.GitCounts.outputs.avg-word-length > 318 && 'red,red,red,orange'       ||
             'red' }}
+          path: .github/badges/reading_level.svg
+
       - name: "Generate DRY Score Badge"
         uses: emibcn/badge-action@v1
         with:
@@ -483,6 +489,7 @@ jobs:
             steps.calcs.outputs.dry-score > 7  && 'red,orange'        ||
             steps.calcs.outputs.dry-score > 3  && 'red'               ||
             'black,red' }}
+          path: .github/badges/var_score.svg
 
       - name: push
         uses: actions-x/commit@v2
