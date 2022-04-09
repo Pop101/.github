@@ -153,8 +153,8 @@ jobs:
 
       words: ${{ steps.words.outputs.words }}
       chars: ${{ steps.words.outputs.chars }}
-      avg-word-length: ${{ steps.words.outputs.avg-word-length }}
-      unique-words: ${{ steps.words.outputs.unique-words }}
+      avg_word_length: ${{ steps.words.outputs.avg_word_length }}
+      unique_words: ${{ steps.words.outputs.unique_words }}
 
     runs-on: ubuntu-latest
 
@@ -219,12 +219,12 @@ jobs:
           echo "Average Word Length: $AVG_WORD_LENGTH"
 
           declare UNIQUE_WORDS=$(echo $RAW_WORDS | tr ' ' '\n' | sort -u | wc -l)
-          UNIQUE_WORDS=$(($UNIQUE_WORDS - 1))
+          # UNIQUE_WORDS=$(($UNIQUE_WORDS - 1))
 
           echo "##[set-output name=words;]$WORDS"
           echo "##[set-output name=chars;]$CHARS"
-          echo "##[set-output name=avg-word-length;]$AVG_WORD_LENGTH"
-          echo "##[set-output name=unique-words;]$UNIQUE_WORDS"
+          echo "##[set-output name=avg_word_length;]$AVG_WORD_LENGTH"
+          echo "##[set-output name=unique_words;]$UNIQUE_WORDS"
 
   GenBadges:
     # A job to generate badges for the current repository.
@@ -279,7 +279,7 @@ jobs:
           QL_WARNINGS: ${{ steps.defaults.outputs.warnings }}
           QL_ERRORS: ${{ steps.defaults.outputs.errors }}
 
-          UNIQUE_WORDS: ${{ steps.GitCounts.outputs.unique-words }}
+          UNIQUE_WORDS: ${{ steps.GitCounts.outputs.unique_words }}
           WORD_COUNT: ${{ steps.GitCounts.outputs.words }}
 
         run: |
@@ -316,7 +316,7 @@ jobs:
           echo "##[set-output name=total-warnings;]$TOTAL_WARNINGS"
           echo "##[set-output name=warnings-percent;]$WARNS_PERCENT"
           echo "##[set-output name=clean-percent;]$CLEAN_PERCENT"
-          echo "##[set-output name=dry-score;]$DRY_SCORE"
+          echo "##[set-output name=dry_score;]$DRY_SCORE"
 
       - name: "Generate Commit Badge"
         uses: emibcn/badge-action@v1
@@ -431,36 +431,36 @@ jobs:
           label: "⚯ Reading Level"
           # This is completely arbitrary
           status: ${{
-            steps.GitCounts.outputs.avg-word-length > 600 && 'Collegiate'   ||
-            steps.GitCounts.outputs.avg-word-length > 586 && '12th Grade'   ||
-            steps.GitCounts.outputs.avg-word-length > 570 && '11th Grade'   ||
-            steps.GitCounts.outputs.avg-word-length > 551 && '10th Grade'   ||
-            steps.GitCounts.outputs.avg-word-length > 531 && '9th Grade'    ||
-            steps.GitCounts.outputs.avg-word-length > 510 && '8th Grade'    ||
-            steps.GitCounts.outputs.avg-word-length > 488 && '7th Grade'    ||
-            steps.GitCounts.outputs.avg-word-length > 465 && '6th Grade'    ||
-            steps.GitCounts.outputs.avg-word-length > 441 && '5th Grade'    ||
-            steps.GitCounts.outputs.avg-word-length > 418 && '4th Grade'    ||
-            steps.GitCounts.outputs.avg-word-length > 393 && '3rd Grade'    ||
-            steps.GitCounts.outputs.avg-word-length > 368 && '2nd Grade'    ||
-            steps.GitCounts.outputs.avg-word-length > 343 && '1st Grade'    ||
-            steps.GitCounts.outputs.avg-word-length > 318 && '1st Grade'    ||
+            steps.GitCounts.outputs.avg_word_length > 600 && 'Collegiate'   ||
+            steps.GitCounts.outputs.avg_word_length > 586 && '12th Grade'   ||
+            steps.GitCounts.outputs.avg_word_length > 570 && '11th Grade'   ||
+            steps.GitCounts.outputs.avg_word_length > 551 && '10th Grade'   ||
+            steps.GitCounts.outputs.avg_word_length > 531 && '9th Grade'    ||
+            steps.GitCounts.outputs.avg_word_length > 510 && '8th Grade'    ||
+            steps.GitCounts.outputs.avg_word_length > 488 && '7th Grade'    ||
+            steps.GitCounts.outputs.avg_word_length > 465 && '6th Grade'    ||
+            steps.GitCounts.outputs.avg_word_length > 441 && '5th Grade'    ||
+            steps.GitCounts.outputs.avg_word_length > 418 && '4th Grade'    ||
+            steps.GitCounts.outputs.avg_word_length > 393 && '3rd Grade'    ||
+            steps.GitCounts.outputs.avg_word_length > 368 && '2nd Grade'    ||
+            steps.GitCounts.outputs.avg_word_length > 343 && '1st Grade'    ||
+            steps.GitCounts.outputs.avg_word_length > 318 && '1st Grade'    ||
             'Kindergarten' }}
           color: ${{
-            steps.GitCounts.outputs.avg-word-length > 600 && 'blue'                     ||
-            steps.GitCounts.outputs.avg-word-length > 586 && 'green,blue'               ||
-            steps.GitCounts.outputs.avg-word-length > 570 && 'green,green,blue'         ||
-            steps.GitCounts.outputs.avg-word-length > 551 && 'green,green,green,blue'   ||
-            steps.GitCounts.outputs.avg-word-length > 531 && 'green'                    ||
-            steps.GitCounts.outputs.avg-word-length > 510 && 'yellow,green'             ||
-            steps.GitCounts.outputs.avg-word-length > 488 && 'yellow,yellow,green'      ||
-            steps.GitCounts.outputs.avg-word-length > 465 && 'yellow'                   ||
-            steps.GitCounts.outputs.avg-word-length > 441 && 'orange,yellow'            ||
-            steps.GitCounts.outputs.avg-word-length > 418 && 'orange,orange,yellow'     ||
-            steps.GitCounts.outputs.avg-word-length > 393 && 'orange'                   ||
-            steps.GitCounts.outputs.avg-word-length > 368 && 'red,orange'               ||
-            steps.GitCounts.outputs.avg-word-length > 343 && 'red,red,orange'           ||
-            steps.GitCounts.outputs.avg-word-length > 318 && 'red,red,red,orange'       ||
+            steps.GitCounts.outputs.avg_word_length > 600 && 'blue'                     ||
+            steps.GitCounts.outputs.avg_word_length > 586 && 'green,blue'               ||
+            steps.GitCounts.outputs.avg_word_length > 570 && 'green,green,blue'         ||
+            steps.GitCounts.outputs.avg_word_length > 551 && 'green,green,green,blue'   ||
+            steps.GitCounts.outputs.avg_word_length > 531 && 'green'                    ||
+            steps.GitCounts.outputs.avg_word_length > 510 && 'yellow,green'             ||
+            steps.GitCounts.outputs.avg_word_length > 488 && 'yellow,yellow,green'      ||
+            steps.GitCounts.outputs.avg_word_length > 465 && 'yellow'                   ||
+            steps.GitCounts.outputs.avg_word_length > 441 && 'orange,yellow'            ||
+            steps.GitCounts.outputs.avg_word_length > 418 && 'orange,orange,yellow'     ||
+            steps.GitCounts.outputs.avg_word_length > 393 && 'orange'                   ||
+            steps.GitCounts.outputs.avg_word_length > 368 && 'red,orange'               ||
+            steps.GitCounts.outputs.avg_word_length > 343 && 'red,red,orange'           ||
+            steps.GitCounts.outputs.avg_word_length > 318 && 'red,red,red,orange'       ||
             'red' }}
           path: .github/badges/reading_level.svg
 
@@ -470,24 +470,24 @@ jobs:
           label: "🜲 Variable Score"
           # This is completely arbitrary
           status: ${{
-            steps.calcs.outputs.dry-score > 90 && '????'      ||
-            steps.calcs.outputs.dry-score > 50 && 'Godly'     ||
-            steps.calcs.outputs.dry-score > 40 && 'Insane'    ||
-            steps.calcs.outputs.dry-score > 25 && 'Great'     ||
-            steps.calcs.outputs.dry-score > 15 && 'Good'      ||
-            steps.calcs.outputs.dry-score > 10 && 'Decent'    ||
-            steps.calcs.outputs.dry-score > 7 && 'Fair'       ||
-            steps.calcs.outputs.dry-score > 3  && 'Poor'      ||
+            steps.calcs.outputs.dry_score > 90 && '????'      ||
+            steps.calcs.outputs.dry_score > 50 && 'Godly'     ||
+            steps.calcs.outputs.dry_score > 40 && 'Insane'    ||
+            steps.calcs.outputs.dry_score > 25 && 'Great'     ||
+            steps.calcs.outputs.dry_score > 15 && 'Good'      ||
+            steps.calcs.outputs.dry_score > 10 && 'Decent'    ||
+            steps.calcs.outputs.dry_score > 7 && 'Fair'       ||
+            steps.calcs.outputs.dry_score > 3  && 'Poor'      ||
             'Whats a variable?' }}
           color: ${{
-            steps.calcs.outputs.dry-score > 90 && 'purple'            ||
-            steps.calcs.outputs.dry-score > 50 && 'yellow,orange'     ||
-            steps.calcs.outputs.dry-score > 40 && 'green'             ||
-            steps.calcs.outputs.dry-score > 25 && 'yellow,green'      ||
-            steps.calcs.outputs.dry-score > 15 && 'yellow'            ||
-            steps.calcs.outputs.dry-score > 10 && 'orange'            ||
-            steps.calcs.outputs.dry-score > 7  && 'red,orange'        ||
-            steps.calcs.outputs.dry-score > 3  && 'red'               ||
+            steps.calcs.outputs.dry_score > 90 && 'purple'            ||
+            steps.calcs.outputs.dry_score > 50 && 'yellow,orange'     ||
+            steps.calcs.outputs.dry_score > 40 && 'green'             ||
+            steps.calcs.outputs.dry_score > 25 && 'yellow,green'      ||
+            steps.calcs.outputs.dry_score > 15 && 'yellow'            ||
+            steps.calcs.outputs.dry_score > 10 && 'orange'            ||
+            steps.calcs.outputs.dry_score > 7  && 'red,orange'        ||
+            steps.calcs.outputs.dry_score > 3  && 'red'               ||
             'black,red' }}
           path: .github/badges/var_score.svg
 
