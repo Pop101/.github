@@ -145,10 +145,16 @@ jobs:
     outputs:
       commits: ${{ steps.commits.outputs.count }}
       merges: ${{ steps.commits.outputs.merges }}
+
       branches: ${{ steps.branches.outputs.branches }}
       contributors: ${{ steps.contributors.outputs.contrib }}
       lines: ${{ steps.lines.outputs.lines }}
       issues: ${{ steps.issues.outputs.count }}
+
+      words: ${{ steps.words.outputs.words }}
+      chars: ${{ steps.words.outputs.chars }}
+      avg-word-length: ${{ steps.words.outputs.avg-word-length }}
+      unique-words: ${{ steps.words.outputs.unique-words }}
 
     runs-on: ubuntu-latest
 
@@ -200,6 +206,23 @@ jobs:
         id: lines
         run: |
           echo "##[set-output name=lines;]$(git ls-files | xargs wc -l | awk '{print $1}' | paste -sd+ | bc)"
+
+      - name: "Word Count"
+        id: words
+        run: |
+          declare RAW_WORDS=$(tr '\n' ' ' | sed -E 's/[0-9]|[[:punct:]]/ /g; s/[[:space:]]+/ /g')
+          declare WORDS=$(echo $RAW_WORDS | wc -w)
+          declare CHARS=$(echo $RAW_WORDS | wc -c)
+
+          declare AVG_WORD_LENGTH=$(( 100 * ($CHARS - $WORDS) / $WORDS ))
+
+          declare UNIQUE_WORDS=$(echo $RAW_WORDS | tr ' ' '\n' | sort -u | wc -l)
+          UNIQUE_WORDS=$(($UNIQUE_WORDS - 1))
+
+          echo "##[set-output name=words;]$WORDS"
+          echo "##[set-output name=chars;]$CHARS"
+          echo "##[set-output name=avg-word-length;]$AVG_WORD_LENGTH"
+          echo "##[set-output name=unique-words;]$UNIQUE_WORDS"
 
   GenBadges:
     # A job to generate badges for the current repository.
@@ -254,6 +277,9 @@ jobs:
           QL_WARNINGS: ${{ steps.defaults.outputs.warnings }}
           QL_ERRORS: ${{ steps.defaults.outputs.errors }}
 
+          UNIQUE_WORDS: ${{ steps.GitCounts.outputs.unique-words }}
+          WORD_COUNT: ${{ steps.GitCounts.outputs.words }}
+
         run: |
           mkdir -p ./.github/badges
 
@@ -276,11 +302,17 @@ jobs:
             CLEAN_PERCENT=$(( 100 * $CLEAN_PERCENT / $LINES ))
           fi
 
+          declare DRY_SCORE=100
+          if [ $LINES -gt 0 ]; then
+            DRY_SCORE=$(( 100 * $UNIQUE_WORDS / $WORDS ))
+          fi
+
           echo "##[set-output name=lines-per-pr;]$LINES_PER_PR"
           echo "##[set-output name=total-errors;]$TOTAL_ERRORS"
           echo "##[set-output name=total-warnings;]$TOTAL_WARNINGS"
           echo "##[set-output name=warnings-percent;]$WARNS_PERCENT"
           echo "##[set-output name=clean-percent;]$CLEAN_PERCENT"
+          echo "##[set-output name=dry-score;]$DRY_SCORE"
 
       - name: "Generate Commit Badge"
         uses: emibcn/badge-action@v1
@@ -388,6 +420,69 @@ jobs:
             steps.calcs.outputs.clean-percent > 20 && 'red,red,red,orange' ||
             'red' }}
           path: .github/badges/grade_letter.svg
+
+      - name: "Generate Reading Level Badge"
+        uses: emibcn/badge-action@v1
+        with:
+          label: "⚯ Reading Level"
+          # This is completely arbitrary
+          status: ${{
+            steps.GitCounts.outputs.avg-word-length > 600 && 'Collegiate'   ||
+            steps.GitCounts.outputs.avg-word-length > 586 && '12th Grade'   ||
+            steps.GitCounts.outputs.avg-word-length > 570 && '11th Grade'   ||
+            steps.GitCounts.outputs.avg-word-length > 551 && '10th Grade'   ||
+            steps.GitCounts.outputs.avg-word-length > 531 && '9th Grade'    ||
+            steps.GitCounts.outputs.avg-word-length > 510 && '8th Grade'    ||
+            steps.GitCounts.outputs.avg-word-length > 488 && '7th Grade'    ||
+            steps.GitCounts.outputs.avg-word-length > 465 && '6th Grade'    ||
+            steps.GitCounts.outputs.avg-word-length > 441 && '5th Grade'    ||
+            steps.GitCounts.outputs.avg-word-length > 418 && '4th Grade'    ||
+            steps.GitCounts.outputs.avg-word-length > 393 && '3rd Grade'    ||
+            steps.GitCounts.outputs.avg-word-length > 368 && '2nd Grade'    ||
+            steps.GitCounts.outputs.avg-word-length > 343 && '1st Grade'    ||
+            steps.GitCounts.outputs.avg-word-length > 318 && '1st Grade'    ||
+            'Kindergarten' }}
+          color: ${{
+            steps.GitCounts.outputs.avg-word-length > 600 && 'blue'                     ||
+            steps.GitCounts.outputs.avg-word-length > 586 && 'green,blue'               ||
+            steps.GitCounts.outputs.avg-word-length > 570 && 'green,green,blue'         ||
+            steps.GitCounts.outputs.avg-word-length > 551 && 'green,green,green,blue'   ||
+            steps.GitCounts.outputs.avg-word-length > 531 && 'green'                    ||
+            steps.GitCounts.outputs.avg-word-length > 510 && 'yellow,green'             ||
+            steps.GitCounts.outputs.avg-word-length > 488 && 'yellow,yellow,green'      ||
+            steps.GitCounts.outputs.avg-word-length > 465 && 'yellow'                   ||
+            steps.GitCounts.outputs.avg-word-length > 441 && 'orange,yellow'            ||
+            steps.GitCounts.outputs.avg-word-length > 418 && 'orange,orange,yellow'     ||
+            steps.GitCounts.outputs.avg-word-length > 393 && 'orange'                   ||
+            steps.GitCounts.outputs.avg-word-length > 368 && 'red,orange'               ||
+            steps.GitCounts.outputs.avg-word-length > 343 && 'red,red,orange'           ||
+            steps.GitCounts.outputs.avg-word-length > 318 && 'red,red,red,orange'       ||
+            'red' }}
+      - name: "Generate DRY Score Badge"
+        uses: emibcn/badge-action@v1
+        with:
+          label: "🜲 Variable Score"
+          # This is completely arbitrary
+          status: ${{
+            steps.calcs.outputs.dry-score > 90 && '????'      ||
+            steps.calcs.outputs.dry-score > 50 && 'Godly'     ||
+            steps.calcs.outputs.dry-score > 40 && 'Insane'    ||
+            steps.calcs.outputs.dry-score > 25 && 'Great'     ||
+            steps.calcs.outputs.dry-score > 15 && 'Good'      ||
+            steps.calcs.outputs.dry-score > 10 && 'Decent'    ||
+            steps.calcs.outputs.dry-score > 7 && 'Fair'       ||
+            steps.calcs.outputs.dry-score > 3  && 'Poor'      ||
+            "What's a variable?" }}
+          color: ${{
+            steps.calcs.outputs.dry-score > 90 && 'purple'            ||
+            steps.calcs.outputs.dry-score > 50 && 'yellow,orange'     ||
+            steps.calcs.outputs.dry-score > 40 && 'green'             ||
+            steps.calcs.outputs.dry-score > 25 && 'yellow,green'      ||
+            steps.calcs.outputs.dry-score > 15 && 'yellow'            ||
+            steps.calcs.outputs.dry-score > 10 && 'orange'            ||
+            steps.calcs.outputs.dry-score > 7  && 'red,orange'        ||
+            steps.calcs.outputs.dry-score > 3  && 'red'               ||
+            'black,red' }}
 
       - name: push
         uses: actions-x/commit@v2
