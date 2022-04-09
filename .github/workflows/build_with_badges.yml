@@ -305,8 +305,8 @@ jobs:
           fi
 
           declare DRY_SCORE=100
-          if [ $LINES -gt 0 ]; then
-            DRY_SCORE=$(( 100 * $UNIQUE_WORDS / $WORDS ))
+          if [ $WORDS -gt 0 ]; then
+            DRY_SCORE=$(( (100 * $UNIQUE_WORDS) / $WORDS ))
           fi
 
           echo "DRY_SCORE: $DRY_SCORE"
