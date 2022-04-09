@@ -280,7 +280,7 @@ jobs:
           QL_ERRORS: ${{ steps.defaults.outputs.errors }}
 
           UNIQUE_WORDS: ${{ needs.GitCounts.outputs.unique_words }}
-          WORD_COUNT: ${{ needs.GitCounts.outputs.words }}
+          WORDS: ${{ needs.GitCounts.outputs.words }}
 
         run: |
           mkdir -p ./.github/badges
@@ -306,7 +306,7 @@ jobs:
 
           declare DRY_SCORE=100
           if [ $WORDS -gt 0 ]; then
-            DRY_SCORE=$(( (100 * $UNIQUE_WORDS) / $WORDS ))
+            DRY_SCORE=$(( 100 * $UNIQUE_WORDS / $WORDS ))
           fi
 
           echo "DRY_SCORE: $DRY_SCORE"
