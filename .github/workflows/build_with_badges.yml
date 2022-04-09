@@ -472,7 +472,7 @@ jobs:
             steps.calcs.outputs.dry-score > 10 && 'Decent'    ||
             steps.calcs.outputs.dry-score > 7 && 'Fair'       ||
             steps.calcs.outputs.dry-score > 3  && 'Poor'      ||
-            "What's a variable?" }}
+            'Whats a variable?' }}
           color: ${{
             steps.calcs.outputs.dry-score > 90 && 'purple'            ||
             steps.calcs.outputs.dry-score > 50 && 'yellow,orange'     ||
