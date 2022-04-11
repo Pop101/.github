@@ -350,7 +350,7 @@ jobs:
           if [ $WHITESPACE_CHARS -gt 0 ]; then
             ASS_SCORE=$(( 100 * $WHITESPACE_CHARS / $M_WHITESPACE_CHARS))
           fi
-          declare ASS_STRING=$(printf '%.2f%%' $( bc -l <<< '$ASS_SCORE / 100' ) )
+          declare ASS_STRING=$(echo "scale=2; $ASS_SCORE / 100" | bc )
           echo "String: $ASS_STRING"
 
 
