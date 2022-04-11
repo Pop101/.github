@@ -350,6 +350,9 @@ jobs:
           if [ $WHITESPACE_CHARS -gt 0 ]; then
             ASS_SCORE=$(( 100 * $WHITESPACE_CHARS / $M_WHITESPACE_CHARS))
           fi
+          declare ASS_STRING=$(printf '%.2f%%' $( bc -l <<< '$ASS_SCORE / 100' ) )
+          echo "String: $ASS_STRING"
+
 
           declare NONALPHA_CHARS=$(($NUMERIC_CHARS + $SPECIAL_CHARS + $PUNCT_CHARS))
           declare SANITY_SCORE=100
@@ -366,7 +369,8 @@ jobs:
           echo "##[set-output name=clean-percent;]$CLEAN_PERCENT"
           echo "##[set-output name=dry_score;]$DRY_SCORE"
           echo "##[set-output name=whitespace_score;]$WHITESPACE_SCORE"
-          echo "##[set-output name=ass_score;]$ASS_SCORE"
+          echo "##[set-output name=whitespace_size;]$ASS_SCORE"
+          echo "##[set-output name=whitespace_size_str;]$ASS_STRING"
           echo "##[set-output name=sanity_score;]$SANITY_SCORE"
 
       - name: "Generate Commit Badge"
@@ -563,7 +567,7 @@ jobs:
         uses: emibcn/badge-action@v1
         with:
           label: "⟷ Whitespace Size"
-          status: "$(( printf '%.2f' $( bc -l <<< '${{ steps.calcs.outputs.whitespace_size }} / 100' ) ))c"
+          status: "${{ steps.calcs.outputs.whitespace_size_str }}%"
           color: ${{
             steps.calcs.outputs.whitespace_size > 350 && 'yellow'              ||
             steps.calcs.outputs.whitespace_size > 250 && 'green,green,yellow'  ||
