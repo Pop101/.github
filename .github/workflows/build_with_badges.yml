@@ -156,6 +156,13 @@ jobs:
       avg_word_length: ${{ steps.words.outputs.avg_word_length }}
       unique_words: ${{ steps.words.outputs.unique_words }}
 
+      alpha_chars: ${{ steps.char_count.outputs.alpha_chars }}
+      numeric_chars: ${{ steps.char_count.outputs.numeric_chars }}
+      punct_chars: ${{ steps.char_count.outputs.punct_chars }}
+      special_chars: ${{ steps.char_count.outputs.special_chars }}
+      whitespace_chars: ${{ steps.char_count.outputs.whitespace_chars }}
+      meaningful_whitesplace: ${{ steps.char_count.outputs.meaningful_whitespace }}
+
     runs-on: ubuntu-latest
 
     steps:
@@ -212,7 +219,7 @@ jobs:
         run: |
           declare RAW_WORDS=$(git ls-files | xargs cat | tr '\n' ' ' | sed -E 's/[0-9]|[[:punct:]]/ /g; s/[[:space:]]+/ /g')
           declare WORDS=$(echo $RAW_WORDS | wc -w)
-          declare CHARS=$(echo $RAW_WORDS | wc -c)
+          declare CHARS=$(echo $RAW_WORDS | wc -m)
 
           declare AVG_WORD_LENGTH=$(( 100 * ($CHARS - $WORDS) / $WORDS ))
 
@@ -225,6 +232,23 @@ jobs:
           echo "##[set-output name=chars;]$CHARS"
           echo "##[set-output name=avg_word_length;]$AVG_WORD_LENGTH"
           echo "##[set-output name=unique_words;]$UNIQUE_WORDS"
+
+      - name: "Character Count"
+        id: char_count
+        run: |
+          declare ALPHA_CHARS=$(git ls-files | xargs cat | tr -cd '[:alpha:]' | wc -c)
+          declare NUMERIC_CHARS=$(git ls-files | xargs cat | tr -cd '[:digit:]' | wc -c)
+          declare PUNCT_CHARS=$(git ls-files | xargs cat | tr -cd '[:punct:]' | wc -c)
+          declare SPECIAL_CHARS=$(git ls-files | xargs cat | tr -cd '[:graph:]' | wc -c)
+          declare WHITESPACE_CHARS=$(git ls-files | xargs cat | tr -cd '[:space:]' | wc -c)
+          declare MEANINGFUL_WHITESPACE=$(git ls-files | xargs cat | grep -c '[^[:space:]][[:space:]]+[^[:space:]]')
+
+          echo "##[set-output name=alpha_chars;]$ALPHA_CHARS"
+          echo "##[set-output name=numeric_chars;]$NUMERIC_CHARS"
+          echo "##[set-output name=punct_chars;]$PUNCT_CHARS"
+          echo "##[set-output name=special_chars;]$SPECIAL_CHARS"
+          echo "##[set-output name=whitespace_chars;]$WHITESPACE_CHARS"
+          echo "##[set-output name=meaningful_whitespace;]$MEANINGFUL_WHITESPACE"
 
   GenBadges:
     # A job to generate badges for the current repository.
@@ -282,12 +306,20 @@ jobs:
           UNIQUE_WORDS: ${{ needs.GitCounts.outputs.unique_words }}
           WORDS: ${{ needs.GitCounts.outputs.words }}
 
+          CHARS: ${{ needs.GitCounts.outputs.chars }}
+          ALPHA_CHARS: ${{ needs.GitCounts.outputs.alpha_chars }}
+          NUMERIC_CHARS: ${{ needs.GitCounts.outputs.numeric_chars }}
+          PUNCT_CHARS: ${{ needs.GitCounts.outputs.punct_chars }}
+          SPECIAL_CHARS: ${{ needs.GitCounts.outputs.special_chars }}
+          WHITESPACE_CHARS: ${{ needs.GitCounts.outputs.whitespace_chars }}
+          M_WHITESPACE_CHARS: ${{ needs.GitCounts.outputs.meaningful_whitespace }}
+
         run: |
           mkdir -p ./.github/badges
 
           declare LINES_PER_PR="∞"
           if [ $PR_ISSUES -gt 0 ] && [ $LINES -gt 0 ]; then
-            LINES_PER_PR = $(($LINES / $PR_ISSUES))
+            LINES_PER_PR=$(($LINES / $PR_ISSUES))
           fi
 
           declare TOTAL_ERRORS=$(($QL_ERRORS + $MK_ERRORS))
@@ -309,7 +341,23 @@ jobs:
             DRY_SCORE=$(( 100 * $UNIQUE_WORDS / $WORDS ))
           fi
 
-          echo "DRY_SCORE: $DRY_SCORE"
+          declare WHITESPACE_SCORE=100
+          if [ $CHARS -gt 0 ]; then
+            WHITESPACE_SCORE=$(( 100 * $M_WHITESPACE_CHARS / $CHARS ))
+          fi
+
+          declare ASS_SCORE=100 # "Average Space Size"
+          if [ $WHITESPACE_CHARS -gt 0 ]; then
+            ASS_SCORE=$(( 100 * $WHITESPACE_CHARS / $M_WHITESPACE_CHARS))
+          fi
+
+          declare NONALPHA_CHARS=$(($NUMERIC_CHARS + $SPECIAL_CHARS + $PUNCT_CHARS))
+          declare SANITY_SCORE=100
+          if [ $CHARS -gt 0 ]; then
+            SANITY_SCORE=$(( 100 * $NONALPHA_CHARS / $CHARS ))
+            SANITY_SCORE=$(($SANITY_SCORE + $WHITESPACE_SCORE))
+          fi
+
 
           echo "##[set-output name=lines-per-pr;]$LINES_PER_PR"
           echo "##[set-output name=total-errors;]$TOTAL_ERRORS"
@@ -317,6 +365,9 @@ jobs:
           echo "##[set-output name=warnings-percent;]$WARNS_PERCENT"
           echo "##[set-output name=clean-percent;]$CLEAN_PERCENT"
           echo "##[set-output name=dry_score;]$DRY_SCORE"
+          echo "##[set-output name=whitespace_score;]$WHITESPACE_SCORE"
+          echo "##[set-output name=ass_score;]$ASS_SCORE"
+          echo "##[set-output name=sanity_score;]$SANITY_SCORE"
 
       - name: "Generate Commit Badge"
         uses: emibcn/badge-action@v1
@@ -415,7 +466,7 @@ jobs:
             'Brain Damage' }}
           color: ${{
             steps.calcs.outputs.clean-percent > 90 && 'green'              ||
-            steps.calcs.outputs.clean-percent > 80 && 'yellow,green'       ||
+            steps.calcs.outputs.clean-percent > 80 && 'green,green,yellow' ||
             steps.calcs.outputs.clean-percent > 70 && 'yellow'             ||
             steps.calcs.outputs.clean-percent > 60 && 'orange,yellow'      ||
             steps.calcs.outputs.clean-percent > 50 && 'orange'             ||
@@ -476,7 +527,7 @@ jobs:
             steps.calcs.outputs.dry_score > 25 && 'Great'     ||
             steps.calcs.outputs.dry_score > 15 && 'Good'      ||
             steps.calcs.outputs.dry_score > 10 && 'Decent'    ||
-            steps.calcs.outputs.dry_score > 7 && 'Fair'       ||
+            steps.calcs.outputs.dry_score > 7  && 'Fair'       ||
             steps.calcs.outputs.dry_score > 3  && 'Poor'      ||
             'Whats a variable?' }}
           color: ${{
@@ -490,6 +541,66 @@ jobs:
             steps.calcs.outputs.dry_score > 3  && 'red'               ||
             'black,red' }}
           path: .github/badges/var_score.svg
+
+      - name: "Generate Whitespace Coverage Badge"
+        uses: emibcn/badge-action@v1
+        with:
+          label: "⎵ Whitespace Coverage"
+          status: "${{ steps.calcs.outputs.whitespace_score }}%"
+          color: ${{
+            steps.calcs.outputs.whitespace_score > 90 && 'green'              ||
+            steps.calcs.outputs.whitespace_score > 80 && 'green,green,yellow' ||
+            steps.calcs.outputs.whitespace_score > 70 && 'yellow'             ||
+            steps.calcs.outputs.whitespace_score > 60 && 'orange,yellow'      ||
+            steps.calcs.outputs.whitespace_score > 50 && 'orange'             ||
+            steps.calcs.outputs.whitespace_score > 40 && 'red,orange'         ||
+            steps.calcs.outputs.whitespace_score > 30 && 'red,red,orange'     ||
+            steps.calcs.outputs.whitespace_score > 20 && 'red,red,red,orange' ||
+            'red' }}
+          path: .github/badges/whitespace_coverage.svg
+
+      - name: "Generate Whitspace Size Badge"
+        uses: emibcn/badge-action@v1
+        with:
+          label: "⟷ Whitespace Size"
+          status: "$(( printf '%.2f' $( bc -l <<< '${{ steps.calcs.outputs.whitespace_size }} / 100' ) ))c"
+          color: ${{
+            steps.calcs.outputs.whitespace_size > 350 && 'yellow'              ||
+            steps.calcs.outputs.whitespace_size > 250 && 'green,green,yellow'  ||
+            steps.calcs.outputs.whitespace_size > 180 && 'green'               ||
+            steps.calcs.outputs.whitespace_size > 170 && 'green,green,yellow'  ||
+            steps.calcs.outputs.whitespace_size > 160 && 'yellow'              ||
+            steps.calcs.outputs.whitespace_size > 150 && 'orange,yellow'       ||
+            steps.calcs.outputs.whitespace_size > 140 && 'orange'              ||
+            steps.calcs.outputs.whitespace_size > 130 && 'red,orange'          ||
+            steps.calcs.outputs.whitespace_size > 120 && 'red,red,orange'      ||
+            steps.calcs.outputs.whitespace_size > 110 && 'red,red,red,orange'  ||
+            'red' }}
+          path: .github/badges/whitespace_size.svg
+
+      - name: "Generate Insanity Badge"
+        uses: emibcn/badge-action@v1
+        with:
+          label: "ඞ Insanity"
+          status: ${{
+            steps.calcs.outputs.sanity_score > 90 && 'Based'                  ||
+            steps.calcs.outputs.sanity_score > 60 && 'Average Joe'            ||
+            steps.calcs.outputs.sanity_score > 50 && 'Lambda Appreciator'     ||
+            steps.calcs.outputs.sanity_score > 40 && 'Lambda Enthusiast'      ||
+            steps.calcs.outputs.sanity_score > 30 && 'Knocked on the Head'    ||
+            steps.calcs.outputs.sanity_score > 20 && 'Insane'                 ||
+            steps.calcs.outputs.sanity_score > 10 && 'Clinical'               ||
+            'Lovecrafts Disciple' }}
+          color: ${{
+            steps.calcs.outputs.sanity_score > 90 && 'green'                  ||
+            steps.calcs.outputs.sanity_score > 60 && 'green,green,yellow'     ||
+            steps.calcs.outputs.sanity_score > 50 && 'green,yellow'           ||
+            steps.calcs.outputs.sanity_score > 40 && 'yellow'                 ||
+            steps.calcs.outputs.sanity_score > 30 && 'orange,yellow'          ||
+            steps.calcs.outputs.sanity_score > 20 && 'red,orange'             ||
+            steps.calcs.outputs.sanity_score > 10 && 'red'                    ||
+            'purple,green' }}
+          path: .github/badges/insanity.svg
 
       - name: push
         uses: actions-x/commit@v2
