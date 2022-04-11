@@ -161,7 +161,7 @@ jobs:
       punct_chars: ${{ steps.char_count.outputs.punct_chars }}
       special_chars: ${{ steps.char_count.outputs.special_chars }}
       whitespace_chars: ${{ steps.char_count.outputs.whitespace_chars }}
-      meaningful_whitesplace: ${{ steps.char_count.outputs.meaningful_whitespace }}
+      meaningful_whitespace: ${{ steps.char_count.outputs.meaningful_whitespace }}
 
     runs-on: ubuntu-latest
 
@@ -567,7 +567,7 @@ jobs:
         uses: emibcn/badge-action@v1
         with:
           label: "⟷ Whitespace Size"
-          status: "${{ steps.calcs.outputs.whitespace_size_str }}%"
+          status: "${{ steps.calcs.outputs.whitespace_size_str }}c"
           color: ${{
             steps.calcs.outputs.whitespace_size > 350 && 'yellow'              ||
             steps.calcs.outputs.whitespace_size > 250 && 'green,green,yellow'  ||
