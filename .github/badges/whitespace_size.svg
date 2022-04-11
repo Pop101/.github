@@ -1,20 +1,20 @@
-<svg width="360" height="20" viewBox="0 0 3600 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="⟷ Whitespace Size: $(( printf &apos;%.2f&apos; $( bc -l &lt;&lt;&lt; &apos; / 100&apos; ) ))c">
-  <title>⟷ Whitespace Size: $(( printf &apos;%.2f&apos; $( bc -l &lt;&lt;&lt; &apos; / 100&apos; ) ))c</title>
+<svg width="174.1" height="20" viewBox="0 0 1741 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="⟷ Whitespace Size: 0.00%%">
+  <title>⟷ Whitespace Size: 0.00%%</title>
   <linearGradient id="a" x2="0" y2="100%">
     <stop offset="0" stop-opacity=".1" stop-color="#EEE"/>
     <stop offset="1" stop-opacity=".1"/>
   </linearGradient>
-  <mask id="m"><rect width="3600" height="200" rx="30" fill="#FFF"/></mask>
+  <mask id="m"><rect width="1741" height="200" rx="30" fill="#FFF"/></mask>
   <g mask="url(#m)">
     <rect width="1151" height="200" fill="#555"/>
-    <rect width="2449" height="200" fill="#E43" x="1151"/>
-    <rect width="3600" height="200" fill="url(#a)"/>
+    <rect width="590" height="200" fill="#E43" x="1151"/>
+    <rect width="1741" height="200" fill="url(#a)"/>
   </g>
   <g aria-hidden="true" fill="#fff" text-anchor="start" font-family="Verdana,DejaVu Sans,sans-serif" font-size="110">
     <text x="60" y="148" textLength="1051" fill="#000" opacity="0.25">⟷ Whitespace Size</text>
     <text x="50" y="138" textLength="1051">⟷ Whitespace Size</text>
-    <text x="1206" y="148" textLength="2349" fill="#000" opacity="0.25">$(( printf &apos;%.2f&apos; $( bc -l &lt;&lt;&lt; &apos; / 100&apos; ) ))c</text>
-    <text x="1196" y="138" textLength="2349">$(( printf &apos;%.2f&apos; $( bc -l &lt;&lt;&lt; &apos; / 100&apos; ) ))c</text>
+    <text x="1206" y="148" textLength="490" fill="#000" opacity="0.25">0.00%%</text>
+    <text x="1196" y="138" textLength="490">0.00%%</text>
   </g>
   
 </svg>
