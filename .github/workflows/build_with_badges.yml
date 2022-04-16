@@ -370,11 +370,9 @@ jobs:
             ASS_STRING=$(echo "scale=2; $WHITESPACE_CHARS / $M_WHITESPACE_CHARS" | bc )
           fi
 
-
-          declare NONALPHA_CHARS=$(($NUMERIC_CHARS + $SPECIAL_CHARS + $PUNCT_CHARS))
           declare SANITY_SCORE=100
           if [ $CHARS -gt 0 ]; then
-            SANITY_SCORE=$(( 100 * $NONALPHA_CHARS / $CHARS ))
+            SANITY_SCORE=$(( 100 * $ALPHA_CHARS / $CHARS ))
             SANITY_SCORE=$(($SANITY_SCORE + $WHITESPACE_SCORE))
           fi
 
@@ -569,14 +567,14 @@ jobs:
           label: "⎵ Whitespace Coverage"
           status: "${{ steps.calcs.outputs.whitespace_score }}%"
           color: ${{
-            steps.calcs.outputs.whitespace_score > 90 && 'green'              ||
-            steps.calcs.outputs.whitespace_score > 80 && 'green,green,yellow' ||
-            steps.calcs.outputs.whitespace_score > 70 && 'yellow'             ||
-            steps.calcs.outputs.whitespace_score > 60 && 'orange,yellow'      ||
-            steps.calcs.outputs.whitespace_score > 50 && 'orange'             ||
-            steps.calcs.outputs.whitespace_score > 40 && 'red,orange'         ||
-            steps.calcs.outputs.whitespace_score > 30 && 'red,red,orange'     ||
-            steps.calcs.outputs.whitespace_score > 20 && 'red,red,red,orange' ||
+            steps.calcs.outputs.whitespace_score > 30 && 'green'              ||
+            steps.calcs.outputs.whitespace_score > 27 && 'green,green,yellow' ||
+            steps.calcs.outputs.whitespace_score > 24 && 'yellow'             ||
+            steps.calcs.outputs.whitespace_score > 21 && 'orange,yellow'      ||
+            steps.calcs.outputs.whitespace_score > 18 && 'orange'             ||
+            steps.calcs.outputs.whitespace_score > 15 && 'red,orange'         ||
+            steps.calcs.outputs.whitespace_score > 12 && 'red,red,orange'     ||
+            steps.calcs.outputs.whitespace_score > 9 && 'red,red,red,orange'  ||
             'red' }}
           path: .github/badges/whitespace_coverage.svg
 
