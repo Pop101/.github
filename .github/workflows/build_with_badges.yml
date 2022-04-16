@@ -253,7 +253,7 @@ jobs:
           declare PUNCT_CHARS=$(echo $FILES | xargs cat | tr -cd '[:punct:]' | wc -c)
           declare SPECIAL_CHARS=$(echo $FILES | xargs cat | tr -cd '[:graph:]' | wc -c)
           declare WHITESPACE_CHARS=$(echo $FILES | xargs cat | tr -cd '[:space:]' | wc -c)
-          declare MEANINGFUL_WHITESPACE=$(echo $FILESs | xargs cat | egrep -c '[^[:space:]][[:space:]]+[^[:space:]]')
+          declare MEANINGFUL_WHITESPACE=$(echo $FILES | xargs cat | egrep -c '[^[:space:]][[:space:]]+[^[:space:]]')
 
           echo "##[set-output name=alpha_chars;]$ALPHA_CHARS"
           echo "##[set-output name=numeric_chars;]$NUMERIC_CHARS"
@@ -261,10 +261,6 @@ jobs:
           echo "##[set-output name=special_chars;]$SPECIAL_CHARS"
           echo "##[set-output name=whitespace_chars;]$WHITESPACE_CHARS"
           echo "##[set-output name=meaningful_whitespace;]$MEANINGFUL_WHITESPACE"
-
-          echo "Chars: $CHARS"
-          echo "Whitespace: $WHITESPACE_CHARS"
-          echo "Meaningful Whitespace: $MEANINGFUL_WHITESPACE"
 
   GenBadges:
     # A job to generate badges for the current repository.
@@ -366,11 +362,13 @@ jobs:
           echo "Chars: $CHARS"
           echo "Whitespace: $WHITESPACE_CHARS"
           echo "Meaningful Whitespace: $M_WHITESPACE_CHARS"
-          declare ASS_SCORE=100 
+
+          declare ASS_SCORE=100
+          declare ASS_STRING="∞"
           if [ $M_WHITESPACE_CHARS -gt 0 ]; then
             ASS_SCORE=$(( 100 * $WHITESPACE_CHARS / $M_WHITESPACE_CHARS))
+            ASS_STRING=$(echo "scale=2; $WHITESPACE_CHARS / $M_WHITESPACE_CHARS" | bc )
           fi
-          declare ASS_STRING=$(echo "scale=2; $WHITESPACE_CHARS / $M_WHITESPACE_CHARS" | bc )
 
 
           declare NONALPHA_CHARS=$(($NUMERIC_CHARS + $SPECIAL_CHARS + $PUNCT_CHARS))
