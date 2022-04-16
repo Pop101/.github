@@ -363,7 +363,7 @@ jobs:
           # Calculate as follows: 100-(x-20)^1.05 (arbitrary)
           declare WHITESPACE_SCORE=100
           if [ $AVG_LINE_LEN -gt 20 ]; then
-            WHITESPACE_SCORE=$( echo "scale=10; 100 * (100 - ( $AVG_LINE_LEN - 20 ) ^ 1.05)" | bc )
+            WHITESPACE_SCORE=$( echo "scale=10; (100 - ( $AVG_LINE_LEN - 20 ) ^ 1.05)" | bc )
             WHITESPACE_SCORE=$( printf "%.0f" $WHITESPACE_SCORE )
           fi
 
