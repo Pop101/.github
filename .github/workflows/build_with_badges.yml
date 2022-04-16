@@ -326,6 +326,8 @@ jobs:
           WHITESPACE_CHARS: ${{ needs.GitCounts.outputs.whitespace_chars }}
           M_WHITESPACE_CHARS: ${{ needs.GitCounts.outputs.meaningful_whitespace }}
 
+          FILES: ${{ needs.GitCounts.outputs.files }}
+
         run: |
           mkdir -p ./.github/badges
 
@@ -379,6 +381,19 @@ jobs:
             SANITY_SCORE=$(( 100 * $ALPHA_CHARS / $CHARS ))
           fi
 
+          # Count number of files
+          declare F_COUNT=$(echo $FILES | wc -l)
+
+          # Count number of pictures
+          declare PICS=$(echo $FILES | egrep -c '\.(png|jpg|jpeg|gif|svg|webp)$')
+
+          declare PIC_STR_1="⍓ Images"
+          declare PIC_STR_2="$PICS"
+          if [ $PICS -eq 0 ]; then
+            PIC_STR_1="No Pics"
+            PIC_STR_2="No Clicks"
+          fi
+
 
           echo "##[set-output name=lines-per-pr;]$LINES_PER_PR"
           echo "##[set-output name=total-errors;]$TOTAL_ERRORS"
@@ -391,6 +406,10 @@ jobs:
           echo "##[set-output name=whitespace_size;]$ASS_SCORE"
           echo "##[set-output name=whitespace_size_str;]$ASS_STRING"
           echo "##[set-output name=sanity_score;]$SANITY_SCORE"
+          echo "##[set-output name=files;]$F_COUNT"
+          echo "##[set-output name=pics;]$PICS"
+          echo "##[set-output name=pic_str_1;]$PIC_STR_1"
+          echo "##[set-output name=pic_str_2;]$PIC_STR_2"
 
       - name: "Generate Commit Badge"
         uses: emibcn/badge-action@v1
@@ -642,6 +661,37 @@ jobs:
             steps.calcs.outputs.sanity_score > 10 && 'red'                    ||
             'purple,green' }}
           path: .github/badges/insanity.svg
+
+      - name: "Generate File Count Badge"
+        uses: emibcn/badge-action@v1
+        with:
+          label: "▥ File Count"
+          status: "${{ steps.calcs.outputs.file_count }}"
+          color: ${{
+            steps.calcs.outputs.file_count > 1000 && 'red'                     ||
+            steps.calcs.outputs.file_count > 500  && 'red,red,orange'          ||
+            steps.calcs.outputs.file_count > 300  && 'orange'                  ||
+            steps.calcs.outputs.file_count > 200  && 'orange,orange,yellow'    ||
+            steps.calcs.outputs.file_count > 100  && 'orange,yellow'           ||
+            steps.calcs.outputs.file_count > 50   && 'yellow'                  ||
+            steps.calcs.outputs.file_count > 20   && 'yellow,yellow,green'     ||
+            steps.calcs.outputs.file_count > 10   && 'yellow,green'            ||
+            'green' }}
+          path: .github/badges/file_count.svg
+
+      - name: "Generate Pic Badge"
+        uses: emibcn/badge-action@v1
+        with:
+          label: ${{ steps.calcs.outputs.pics_str_1 }}
+          status: ${{ steps.calcs.outputs.pics_str_2 }}
+          color: ${{
+            steps.calcs.outputs.pics > 10 && 'purple'         ||
+            steps.calcs.outputs.pics > 3  && 'green'          ||
+            steps.calcs.outputs.pics > 2  && 'yellow'         ||
+            steps.calcs.outputs.pics > 1  && 'orange,yellow'  ||
+            steps.calcs.outputs.pics > 0  && 'orange'         ||
+            'red' }}
+          path: .github/badges/pics.svg
 
       - name: push
         uses: actions-x/commit@v5
