@@ -354,9 +354,17 @@ jobs:
           fi
 
           declare MEANINGLESS_WHITESPACE=$(( $WHITESPACE_CHARS - $M_WHITESPACE_CHARS ))
-          declare WHITESPACE_SCORE=100
+          declare AVG_LINE_LEN=0
           if [ $CHARS -gt 0 ]; then
-            WHITESPACE_SCORE=$(( 100 * ($CHARS - $MEANINGLESS_WHITESPACE) / $LINES ))
+            AVG_LINE_LEN=$(( ($CHARS - $MEANINGLESS_WHITESPACE) / $LINES ))
+          fi
+
+          # "Ideal" line length is 20 characters (arbitrary)
+          # Calculate as follows: 100-(x-20)^1.05 (arbitrary)
+          declare WHITESPACE_SCORE=100
+          if [ $AVG_LINE_LEN -gt 20 ]; then
+            WHITESPACE_SCORE=$( echo "scale=10; 100 * (100 - ( $AVG_LINE_LEN - 20 ) ^ 1.05)" | bc )
+            WHITESPACE_SCORE=$( printf "%.0f" $WHITESPACE_SCORE )
           fi
 
           # "Average Space Size"
@@ -568,14 +576,14 @@ jobs:
           label: "⎵ Whitespace Coverage"
           status: "${{ steps.calcs.outputs.whitespace_score }}%"
           color: ${{
-            steps.calcs.outputs.whitespace_score > 30 && 'green'              ||
-            steps.calcs.outputs.whitespace_score > 27 && 'green,green,yellow' ||
-            steps.calcs.outputs.whitespace_score > 24 && 'yellow'             ||
-            steps.calcs.outputs.whitespace_score > 21 && 'orange,yellow'      ||
-            steps.calcs.outputs.whitespace_score > 18 && 'orange'             ||
-            steps.calcs.outputs.whitespace_score > 15 && 'red,orange'         ||
-            steps.calcs.outputs.whitespace_score > 12 && 'red,red,orange'     ||
-            steps.calcs.outputs.whitespace_score > 9 && 'red,red,red,orange'  ||
+            steps.calcs.outputs.whitespace_score > 90 && 'green'              ||
+            steps.calcs.outputs.whitespace_score > 80 && 'green,green,yellow' ||
+            steps.calcs.outputs.whitespace_score > 70 && 'yellow'             ||
+            steps.calcs.outputs.whitespace_score > 60 && 'orange,yellow'      ||
+            steps.calcs.outputs.whitespace_score > 50 && 'orange'             ||
+            steps.calcs.outputs.whitespace_score > 40 && 'red,orange'         ||
+            steps.calcs.outputs.whitespace_score > 30 && 'red,red,orange'     ||
+            steps.calcs.outputs.whitespace_score > 20 && 'red,red,red,orange'  ||
             'red' }}
           path: .github/badges/whitespace_coverage.svg
 
