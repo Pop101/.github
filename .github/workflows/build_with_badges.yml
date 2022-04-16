@@ -406,7 +406,7 @@ jobs:
           echo "##[set-output name=whitespace_size;]$ASS_SCORE"
           echo "##[set-output name=whitespace_size_str;]$ASS_STRING"
           echo "##[set-output name=sanity_score;]$SANITY_SCORE"
-          echo "##[set-output name=files;]$F_COUNT"
+          echo "##[set-output name=file_count;]$F_COUNT"
           echo "##[set-output name=pics;]$PICS"
           echo "##[set-output name=pic_str_1;]$PIC_STR_1"
           echo "##[set-output name=pic_str_2;]$PIC_STR_2"
@@ -682,8 +682,8 @@ jobs:
       - name: "Generate Pic Badge"
         uses: emibcn/badge-action@v1
         with:
-          label: ${{ steps.calcs.outputs.pics_str_1 }}
-          status: ${{ steps.calcs.outputs.pics_str_2 }}
+          label: ${{ steps.calcs.outputs.pic_str_1 }}
+          status: ${{ steps.calcs.outputs.pic_str_2 }}
           color: ${{
             steps.calcs.outputs.pics > 10 && 'purple'         ||
             steps.calcs.outputs.pics > 3  && 'green'          ||
