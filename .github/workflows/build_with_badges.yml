@@ -262,6 +262,10 @@ jobs:
           echo "##[set-output name=whitespace_chars;]$WHITESPACE_CHARS"
           echo "##[set-output name=meaningful_whitespace;]$MEANINGFUL_WHITESPACE"
 
+          echo "Chars: $CHARS"
+          echo "Whitespace: $WHITESPACE_CHARS"
+          echo "Meaningful Whitespace: $MEANINGFUL_WHITESPACE"
+
   GenBadges:
     # A job to generate badges for the current repository.
     # Badges are generated based on all the values calculated above:
@@ -358,7 +362,11 @@ jobs:
             WHITESPACE_SCORE=$(( 100 * $M_WHITESPACE_CHARS / $CHARS ))
           fi
 
-          declare ASS_SCORE=100 # "Average Space Size"
+          # "Average Space Size"
+          echo "Chars: $CHARS"
+          echo "Whitespace: $WHITESPACE_CHARS"
+          echo "Meaningful Whitespace: $M_WHITESPACE_CHARS"
+          declare ASS_SCORE=100 
           if [ $M_WHITESPACE_CHARS -gt 0 ]; then
             ASS_SCORE=$(( 100 * $WHITESPACE_CHARS / $M_WHITESPACE_CHARS))
           fi
