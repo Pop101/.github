@@ -377,7 +377,6 @@ jobs:
           declare SANITY_SCORE=100
           if [ $CHARS -gt 0 ]; then
             SANITY_SCORE=$(( 100 * $ALPHA_CHARS / $CHARS ))
-            SANITY_SCORE=$(($SANITY_SCORE + $WHITESPACE_SCORE))
           fi
 
 
