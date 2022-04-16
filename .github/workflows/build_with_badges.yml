@@ -353,9 +353,10 @@ jobs:
             DRY_SCORE=$(( 100 * $UNIQUE_WORDS / $WORDS ))
           fi
 
+          declare MEANINGLESS_WHITESPACE=$(( $WHITESPACE_CHARS - $M_WHITESPACE_CHARS ))
           declare WHITESPACE_SCORE=100
           if [ $CHARS -gt 0 ]; then
-            WHITESPACE_SCORE=$(( 100 * $M_WHITESPACE_CHARS / $CHARS ))
+            WHITESPACE_SCORE=$(( 100 * ($CHARS - $MEANINGLESS_WHITESPACE) / $LINES ))
           fi
 
           # "Average Space Size"
