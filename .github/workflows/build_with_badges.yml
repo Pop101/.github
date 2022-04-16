@@ -367,11 +367,6 @@ jobs:
             WHITESPACE_SCORE=$( printf "%.0f" $WHITESPACE_SCORE )
           fi
 
-          # "Average Space Size"
-          echo "Chars: $CHARS"
-          echo "Whitespace: $WHITESPACE_CHARS"
-          echo "Meaningful Whitespace: $M_WHITESPACE_CHARS"
-
           declare ASS_SCORE=100
           declare ASS_STRING="∞"
           if [ $M_WHITESPACE_CHARS -gt 0 ]; then
@@ -392,6 +387,7 @@ jobs:
           echo "##[set-output name=warnings-percent;]$WARNS_PERCENT"
           echo "##[set-output name=clean-percent;]$CLEAN_PERCENT"
           echo "##[set-output name=dry_score;]$DRY_SCORE"
+          echo "##[set-output name=avg_line_len;]$AVG_LINE_LEN"
           echo "##[set-output name=whitespace_score;]$WHITESPACE_SCORE"
           echo "##[set-output name=whitespace_size;]$ASS_SCORE"
           echo "##[set-output name=whitespace_size_str;]$ASS_STRING"
@@ -605,6 +601,24 @@ jobs:
             steps.calcs.outputs.whitespace_size > 110 && 'red,red,red,orange'  ||
             'red' }}
           path: .github/badges/whitespace_size.svg
+
+      - name: "Generate Avg Line Length Badge"
+        uses: emibcn/badge-action@v1
+        with:
+          label: "𝌢 Line Length"
+          status: "${{ steps.calcs.outputs.avg_line_len }}c"
+          color: ${{
+            steps.calcs.outputs.avg_line_len > 100 && 'red'                     ||
+            steps.calcs.outputs.avg_line_len > 90  && 'red,red,orange'          ||
+            steps.calcs.outputs.avg_line_len > 80  && 'orange'                  ||
+            steps.calcs.outputs.avg_line_len > 70  && 'orange,orange,yellow'    ||
+            steps.calcs.outputs.avg_line_len > 60  && 'orange,yellow'           ||
+            steps.calcs.outputs.avg_line_len > 50  && 'yellow'                  ||
+            steps.calcs.outputs.avg_line_len > 40  && 'yellow,yellow,green'     ||
+            steps.calcs.outputs.avg_line_len > 30  && 'yellow,green'            ||
+            steps.calcs.outputs.avg_line_len > 20  && 'green'                   ||
+            'orange,yellow' }}
+          path: .github/badges/line_length.svg
 
       - name: "Generate Insanity Badge"
         uses: emibcn/badge-action@v1
