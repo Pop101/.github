@@ -498,10 +498,10 @@ jobs:
           # This is completely arbitrary
           status: ${{
             needs.GitCounts.outputs.avg_word_length > 600 && 'Collegiate'   ||
-            needs.GitCounts.outputs.avg_word_length > 586 && '12th Grade'   ||
-            needs.GitCounts.outputs.avg_word_length > 570 && '11th Grade'   ||
-            needs.GitCounts.outputs.avg_word_length > 551 && '10th Grade'   ||
-            needs.GitCounts.outputs.avg_word_length > 531 && '9th Grade'    ||
+            needs.GitCounts.outputs.avg_word_length > 586 && 'Senior'   ||
+            needs.GitCounts.outputs.avg_word_length > 570 && 'Junior'   ||
+            needs.GitCounts.outputs.avg_word_length > 551 && 'Sophomore'   ||
+            needs.GitCounts.outputs.avg_word_length > 531 && 'Freshman'    ||
             needs.GitCounts.outputs.avg_word_length > 510 && '8th Grade'    ||
             needs.GitCounts.outputs.avg_word_length > 488 && '7th Grade'    ||
             needs.GitCounts.outputs.avg_word_length > 465 && '6th Grade'    ||
@@ -618,7 +618,7 @@ jobs:
           path: .github/badges/insanity.svg
 
       - name: push
-        uses: actions-x/commit@v2
+        uses: actions-x/commit@v5
         with:
           message: "Update Badges"
           email: actions@github.com
