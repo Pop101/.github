@@ -241,7 +241,7 @@ jobs:
           declare PUNCT_CHARS=$(git ls-files | xargs cat | tr -cd '[:punct:]' | wc -c)
           declare SPECIAL_CHARS=$(git ls-files | xargs cat | tr -cd '[:graph:]' | wc -c)
           declare WHITESPACE_CHARS=$(git ls-files | xargs cat | tr -cd '[:space:]' | wc -c)
-          declare MEANINGFUL_WHITESPACE=$(git ls-files | xargs cat | grep -c '[^[:space:]][[:space:]]+[^[:space:]]')
+          declare MEANINGFUL_WHITESPACE=$(git ls-files | xargs cat | egrep -c '[^[:space:]][[:space:]]+[^[:space:]]')
 
           echo "##[set-output name=alpha_chars;]$ALPHA_CHARS"
           echo "##[set-output name=numeric_chars;]$NUMERIC_CHARS"
@@ -347,11 +347,10 @@ jobs:
           fi
 
           declare ASS_SCORE=100 # "Average Space Size"
-          if [ $WHITESPACE_CHARS -gt 0 ]; then
+          if [ $M_WHITESPACE_CHARS -gt 0 ]; then
             ASS_SCORE=$(( 100 * $WHITESPACE_CHARS / $M_WHITESPACE_CHARS))
           fi
-          declare ASS_STRING=$(echo "scale=2; $ASS_SCORE / 100" | bc )
-          echo "String: $ASS_STRING"
+          declare ASS_STRING=$(echo "scale=2; $WHITESPACE_CHARS / $M_WHITESPACE_CHARS" | bc )
 
 
           declare NONALPHA_CHARS=$(($NUMERIC_CHARS + $SPECIAL_CHARS + $PUNCT_CHARS))
