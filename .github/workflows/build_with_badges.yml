@@ -218,6 +218,8 @@ jobs:
     name: "File Statistics"
 
     outputs:
+      files: ${{ steps.lines.outputs.lines }}
+      text_files: ${{ steps.lines.outputs.lines }}
       lines: ${{ steps.lines.outputs.lines }}
       words: ${{ steps.words.outputs.words }}
       chars: ${{ steps.words.outputs.chars }}
@@ -239,17 +241,23 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: "File List"
+        id: files
+        run: |
+          echo "##[set-output name=files;]$(git ls-files | grep -v "^.github/")"
+          echo "##[set-output name=text_files;]$(git ls-files | grep -v "^.github/" | file -if - | grep -Ei "ascii|utf" | awk -F: '{print $1}')"
+
       - name: "Line Count"
         id: lines
         env:
-          FILES: ${{ steps.files.outputs.files }}
+          FILES: ${{ steps.files.outputs.text_files }}
         run: |
           echo "##[set-output name=lines;]$(echo $FILES | xargs wc -l | awk '{print $1}' | paste -sd+ | bc)"
 
       - name: "Word Count"
         id: words
         env:
-          FILES: ${{ steps.files.outputs.files }}
+          FILES: ${{ steps.files.outputs.text_files }}
         run: |
           declare RAW_WORDS=$(echo $FILES | xargs cat | tr '\n' ' ' | sed -E 's/[0-9]|[[:punct:]]/ /g; s/[[:space:]]+/ /g')
           declare WORDS=$(echo $RAW_WORDS | wc -w)
@@ -270,7 +278,7 @@ jobs:
       - name: "Character Count"
         id: char_count
         env:
-          FILES: ${{ steps.files.outputs.files }}
+          FILES: ${{ steps.files.outputs.text_files }}
         run: |
           declare ALPHA_CHARS=$(echo $FILES | xargs cat | tr -cd '[:alpha:]' | wc -c)
           declare NUMERIC_CHARS=$(echo $FILES | xargs cat | tr -cd '[:digit:]' | wc -c)
