@@ -252,7 +252,7 @@ jobs:
         env:
           FILES: ${{ steps.files.outputs.text_files }}
         run: |
-          echo "##[set-output name=lines;]$(echo $FILES | xargs wc -l | awk '{print $1}' | paste -sd+ | bc)"
+          echo "##[set-output name=lines;]$(echo $FILES | xargs cat | wc -l)"
 
       - name: "Word Count"
         id: words
@@ -337,7 +337,7 @@ jobs:
       - name: "Calculations"
         id: calcs
         env:
-          LINES: ${{ needs.GitCounts.outputs.lines }}
+          LINES: ${{ needs.FileStats.outputs.lines }}
           PR_ISSUES: ${{ needs.GitCounts.outputs.issues }}
 
           MK_WARNINGS: ${{ steps.defaults.outputs.warnings }}
