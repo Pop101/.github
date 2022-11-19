@@ -149,20 +149,7 @@ jobs:
 
       branches: ${{ steps.branches.outputs.branches }}
       contributors: ${{ steps.contributors.outputs.contrib }}
-      lines: ${{ steps.lines.outputs.lines }}
       issues: ${{ steps.issues.outputs.count }}
-
-      words: ${{ steps.words.outputs.words }}
-      chars: ${{ steps.words.outputs.chars }}
-      avg_word_length: ${{ steps.words.outputs.avg_word_length }}
-      unique_words: ${{ steps.words.outputs.unique_words }}
-
-      alpha_chars: ${{ steps.char_count.outputs.alpha_chars }}
-      numeric_chars: ${{ steps.char_count.outputs.numeric_chars }}
-      punct_chars: ${{ steps.char_count.outputs.punct_chars }}
-      special_chars: ${{ steps.char_count.outputs.special_chars }}
-      whitespace_chars: ${{ steps.char_count.outputs.whitespace_chars }}
-      meaningful_whitespace: ${{ steps.char_count.outputs.meaningful_whitespace }}
 
     runs-on: ubuntu-latest
 
@@ -214,6 +201,43 @@ jobs:
         run: |
           git shortlog -s HEAD
           echo "##[set-output name=contrib;]$(git shortlog -s HEAD | wc -l)"
+
+  FileStats:
+    # A job to scan files for interesting statistics
+    # Counts:
+    #   - words (seperated by spaces, punct, or newline, nums)
+    #   - lines
+    #   - chars
+    #   - unique words
+    #   - unique chars
+    #   - alphabetical chars
+    #   - numerical chars
+    #   - punctuation chars
+    #   - whitespace chars
+
+    name: "File Statistics"
+
+    outputs:
+      lines: ${{ steps.lines.outputs.lines }}
+      words: ${{ steps.words.outputs.words }}
+      chars: ${{ steps.words.outputs.chars }}
+      avg_word_length: ${{ steps.words.outputs.avg_word_length }}
+      unique_words: ${{ steps.words.outputs.unique_words }}
+
+      alpha_chars: ${{ steps.char_count.outputs.alpha_chars }}
+      numeric_chars: ${{ steps.char_count.outputs.numeric_chars }}
+      punct_chars: ${{ steps.char_count.outputs.punct_chars }}
+      special_chars: ${{ steps.char_count.outputs.special_chars }}
+      whitespace_chars: ${{ steps.char_count.outputs.whitespace_chars }}
+      meaningful_whitespace: ${{ steps.char_count.outputs.meaningful_whitespace }}
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: "Line Count"
         id: lines
@@ -269,7 +293,7 @@ jobs:
     # - Number of contributors
     # - Number of open issues
     # - Number of lines of code
-    needs: [CodeQL, Make, GitCounts]
+    needs: [CodeQL, Make, GitCounts, FileStats]
     runs-on: ubuntu-latest
 
     steps:
@@ -315,16 +339,16 @@ jobs:
           QL_WARNINGS: ${{ steps.defaults.outputs.warnings }}
           QL_ERRORS: ${{ steps.defaults.outputs.errors }}
 
-          UNIQUE_WORDS: ${{ needs.GitCounts.outputs.unique_words }}
-          WORDS: ${{ needs.GitCounts.outputs.words }}
+          UNIQUE_WORDS: ${{ needs.FileStats.outputs.unique_words }}
+          WORDS: ${{ needs.FileStats.outputs.words }}
 
-          CHARS: ${{ needs.GitCounts.outputs.chars }}
-          ALPHA_CHARS: ${{ needs.GitCounts.outputs.alpha_chars }}
-          NUMERIC_CHARS: ${{ needs.GitCounts.outputs.numeric_chars }}
-          PUNCT_CHARS: ${{ needs.GitCounts.outputs.punct_chars }}
-          SPECIAL_CHARS: ${{ needs.GitCounts.outputs.special_chars }}
-          WHITESPACE_CHARS: ${{ needs.GitCounts.outputs.whitespace_chars }}
-          M_WHITESPACE_CHARS: ${{ needs.GitCounts.outputs.meaningful_whitespace }}
+          CHARS: ${{ needs.FileStats.outputs.chars }}
+          ALPHA_CHARS: ${{ needs.FileStats.outputs.alpha_chars }}
+          NUMERIC_CHARS: ${{ needs.FileStats.outputs.numeric_chars }}
+          PUNCT_CHARS: ${{ needs.FileStats.outputs.punct_chars }}
+          SPECIAL_CHARS: ${{ needs.FileStats.outputs.special_chars }}
+          WHITESPACE_CHARS: ${{ needs.FileStats.outputs.whitespace_chars }}
+          M_WHITESPACE_CHARS: ${{ needs.FileStats.outputs.meaningful_whitespace }}
 
           FILES: ${{ needs.GitCounts.outputs.files }}
 
