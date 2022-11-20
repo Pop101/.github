@@ -4,6 +4,7 @@
 [<img alt="Contributor Count" src=".github/badges/contributor_count.svg" />](../../contributors)
 [<img alt="Error Count" src=".github/badges/errors_count.svg" />](../../actions/workflows/build_with_badges.yml)
 [<img alt="File Count" src=".github/badges/file_count.svg" />](../..)
+[<img alt="File Count" src=".github/badges/text_file_count.svg" />](../..)
 [<img alt="Code Grade" src=".github/badges/grade_letter.svg" />](../..)
 [<img alt="Code Grade" src=".github/badges/grade_percent.svg" />](../..)
 [<img alt="Insanity" src=".github/badges/insanity.svg" />](../..)

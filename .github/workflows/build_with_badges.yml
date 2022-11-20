@@ -427,9 +427,9 @@ jobs:
             DRY_SCORE=$(( 100 * $UNIQUE_WORDS / $WORDS ))
           fi
 
-          declare SWEAR_SCORE=100
+          declare SWEAR_SCORE=0
           if [ $WORDS -gt 0 ]; then
-            SWEAR_SCORE=$(( 100 * $SWEAR / $WORDS ))
+            SWEAR_SCORE=$(( 100 * $SWEARS / $WORDS ))
           fi
 
           declare MEANINGLESS_WHITESPACE=$(( $WHITESPACE_CHARS - $M_WHITESPACE_CHARS ))
@@ -806,7 +806,7 @@ jobs:
             needs.FileStats.outputs.text_file_count > 20   && 'yellow,yellow,green'     ||
             needs.FileStats.outputs.text_file_count > 10   && 'yellow,green'            ||
             'green' }}
-          path: .github/badges/file_count.svg
+          path: .github/badges/text_file_count.svg
 
       - name: "Generate Pic Badge"
         uses: emibcn/badge-action@v1
