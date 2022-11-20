@@ -243,30 +243,32 @@ jobs:
       - name: "File List"
         id: files
         run: |
-          declare FILES=$(git ls-tree --full-tree --name-only -r HEAD | grep -v "^.github/")
-          declare TEXTFILES=$(echo $FILES | file -if - | grep -v "binary" | cut -d: -f1)
+          alias FILES="git ls-tree --full-tree --name-only -r HEAD | grep -v '^.github/'"
+          alias TEXTFILES="FILES | file -if - | grep -v "binary" | cut -d: -f1"
 
           echo "files<<EOFDELIM" >> $GITHUB_OUTPUT 
-          echo $FILES >> $GITHUB_OUTPUT
+          echo $(FILES) >> $GITHUB_OUTPUT
           echo "EOFDELIM" >> $GITHUB_OUTPUT
 
           echo "text_files<<EOFDELIM" >> $GITHUB_OUTPUT 
-          echo $TEXTFILES >> $GITHUB_OUTPUT
+          echo $(TEXTFILES) >> $GITHUB_OUTPUT
           echo "EOFDELIM" >> $GITHUB_OUTPUT
 
-          echo "file_count=$(echo $FILES | wc -l)" >> $GITHUB_OUTPUT
-          echo "text_file_count=$(echo $TEXTFILES | wc -l)" >> $GITHUB_OUTPUT\
+          echo "file_count=$(FILES | wc -l)" >> $GITHUB_OUTPUT
+          echo "text_file_count=$(TEXTFILES | wc -l)" >> $GITHUB_OUTPUT\
 
-          echo "Found \`$(echo $FILES | wc -l)\` tracked files" >> $GITHUB_STEP_SUMMARY
-          echo "Found \`$(echo $TEXTFILES | wc -l)\` textlike files" >> $GITHUB_STEP_SUMMARY
+          echo "Found \`$(FILES | wc -l)\` tracked files" >> $GITHUB_STEP_SUMMARY
+          echo "Found \`$(TEXTFILES | wc -l)\` textlike files" >> $GITHUB_STEP_SUMMARY
 
           echo "List of tracked files:" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          echo $TEXTFILES >> $GITHUB_STEP_SUMMARY
+          echo $(TEXTFILES) >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
 
           echo $(git ls-tree --full-tree --name-only -r HEAD)
           echo $(git ls-tree --full-tree --name-only -r HEAD | wc -l)
+          echo $(FILES)
+          echo $(FILES | wc -l)
 
       - name: "Line Count"
         id: lines
