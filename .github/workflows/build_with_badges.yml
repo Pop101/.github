@@ -261,7 +261,8 @@ jobs:
           echo "Found \`$(echo $FILES | wc -l)\` tracked files" >> $GITHUB_STEP_SUMMARY
           echo "Found \`$(echo $TEXTFILES | wc -l)\` textlike files" >> $GITHUB_STEP_SUMMARY
 
-          echo "List of tracked files: \`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "List of tracked files:" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
           echo "$FILES" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
 
