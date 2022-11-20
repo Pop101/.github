@@ -243,6 +243,7 @@ jobs:
       - name: "File List"
         id: files
         run: |
+          shopt -s expand_aliases
           alias FILES="git ls-tree --full-tree --name-only -r HEAD | grep -v '^.github/'"
           alias TEXTFILES="FILES | file -if - | grep -v "binary" | cut -d: -f1"
 
