@@ -485,6 +485,12 @@ jobs:
           echo "pic_str_1=$PIC_STR_1" >> $GITHUB_OUTPUT
           echo "pic_str_2=$PIC_STR_2" >> $GITHUB_OUTPUT
 
+          echo "## Calculated Values" >> $GITHUB_STEP_SUMMARY
+          echo "words=$WORDS" >> $GITHUB_STEP_SUMMARY
+          echo "unique_words=$UNIQUE_WORDS" >> $GITHUB_STEP_SUMMARY
+          echo "dry_score=$DRY_SCORE" >> $GITHUB_STEP_SUMMARY
+          echo "swear_score=$SWEAR_SCORE" >> $GITHUB_STEP_SUMMARY
+
       - name: "Generate Commit Badge"
         uses: emibcn/badge-action@v1
         with:
