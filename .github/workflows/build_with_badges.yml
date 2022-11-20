@@ -218,8 +218,8 @@ jobs:
     name: "File Statistics"
 
     outputs:
-      files: ${{ steps.files.outputs.file_count }}
-      text_files: ${{ steps.lines.outputs.lines }}
+      files: ${{ steps.files.outputs.files }}
+      text_files: ${{ steps.files.outputs.text_files }}
       lines: ${{ steps.lines.outputs.lines }}
       words: ${{ steps.words.outputs.words }}
       chars: ${{ steps.words.outputs.chars }}
@@ -244,18 +244,21 @@ jobs:
       - name: "File List"
         id: files
         run: |
+          declare FILES=$(git ls-files | grep -v "^.github/")
+          declare TEXTFILES=$(git ls-files | grep -v "^.github/")
+
           echo "files<<EOFDELIM" >> $GITHUB_OUTPUT 
-          echo "$(git ls-files | grep -v "^.github/")" >> $GITHUB_OUTPUT 
+          echo "$FILES" >> $GITHUB_OUTPUT
           echo "EOFDELIM" >> $GITHUB_OUTPUT
 
           echo "text_files<<EOFDELIM" >> $GITHUB_OUTPUT 
-          echo "$(git ls-files | grep -v "^.github/" | file -if - | grep -Ei "ascii|utf" | awk -F: '{print $1}')" >> $GITHUB_OUTPUT 
+          echo "$TEXTFILES" >> $GITHUB_OUTPUT
           echo "EOFDELIM" >> $GITHUB_OUTPUT
 
-          echo "file_count=$(git ls-files | grep -v "^.github/" | wc -l)" >> $GITHUB_OUTPUT
+          echo "file_count=$(echo '$FILES' | wc -l)" >> $GITHUB_OUTPUT
 
-          echo "Found $(git ls-files | grep -v "^.github/" | wc -l) tracked files"
-          echo "Found $(git ls-files | grep -v "^.github/" | file -if - | grep -Ei "ascii|utf" | awk -F: '{print $1}' | wc -l) textlike files"
+          echo "Found `$(echo '$FILES' | wc -l)` tracked files" >> $GITHUB_STEP_SUMMARY
+          echo "Found `$(echo '$TEXTFILES' | wc -l)` textlike files" >> $GITHUB_STEP_SUMMARY
 
       - name: "Line Count"
         id: lines
