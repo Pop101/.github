@@ -25,13 +25,11 @@
 Insert quick blurb of what this repository is for.
 
 ## Table of Contents
-
-- [Template Repository](#template-repository)
-  - [Table of Contents](#table-of-contents)
-  - [Overview](#overview)
-  - [Technologies](#technologies)
-  - [Getting Started](#getting-started)
-  - [Usage](#usage)
+- [Table of Contents](#table-of-contents)
+- [Overview](#overview)
+- [Technologies](#technologies)
+- [Getting Started](#getting-started)
+- [Usage](#usage)
 
 ## Overview
 
