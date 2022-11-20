@@ -265,6 +265,9 @@ jobs:
           echo $TEXTFILES >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
 
+          echo $(git ls-tree --full-tree --name-only -r HEAD)
+          echo $(git ls-tree --full-tree --name-only -r HEAD | wc -l)
+
       - name: "Line Count"
         id: lines
         env:
