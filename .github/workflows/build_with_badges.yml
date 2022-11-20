@@ -690,14 +690,14 @@ jobs:
         uses: emibcn/badge-action@v1
         with:
           label: "⍣ Swear Count"
-          status: "${{ needs.FileStats.outputs.swear_count }}"
+          status: "${{ needs.FileStats.outputs.swear_words }}"
           color: ${{
-            needs.FileStats.outputs.swear_count > 99 && 'red'          ||
-            needs.FileStats.outputs.swear_count > 69 && 'orange,red'       ||
-            needs.FileStats.outputs.swear_count > 49 && 'orange'       ||
-            needs.FileStats.outputs.swear_count > 29 && 'yellow,orange'    ||
-            needs.FileStats.outputs.swear_count > 19 && 'yellow'       ||
-            needs.FileStats.outputs.swear_count > 9 && 'yellow,green'       ||
+            needs.FileStats.outputs.swear_words > 99 && 'red'          ||
+            needs.FileStats.outputs.swear_words > 69 && 'orange,red'       ||
+            needs.FileStats.outputs.swear_words > 49 && 'orange'       ||
+            needs.FileStats.outputs.swear_words > 29 && 'yellow,orange'    ||
+            needs.FileStats.outputs.swear_words > 19 && 'yellow'       ||
+            needs.FileStats.outputs.swear_words > 9 && 'yellow,green'       ||
             'green' }}
           path: .github/badges/swear_count.svg
 
