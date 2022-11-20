@@ -659,11 +659,33 @@ jobs:
             'black,red' }}
           path: .github/badges/var_score.svg
 
+      - name: "Generate Swear Score Badge"
+        uses: emibcn/badge-action@v1
+        with:
+          label: "⍤ Swear Score"
+          status: ${{
+            steps.calcs.outputs.swear_score > 40 && 'New Language'  ||
+            steps.calcs.outputs.swear_score > 10 && 'Sailor'        ||
+            steps.calcs.outputs.swear_score > 5 && 'Fresh outta HS' ||
+            steps.calcs.outputs.swear_score > 3 && 'PG-13'          ||
+            steps.calcs.outputs.swear_score > 1 && 'PG'             ||
+            'G'
+            }}
+          color: ${{
+            steps.calcs.outputs.swear_score > 40 && 'purple'            ||
+            steps.calcs.outputs.swear_score > 10 && 'yellow,orange'     ||
+            steps.calcs.outputs.swear_score > 5 && 'orange,yellow'      ||
+            steps.calcs.outputs.swear_score > 3 && 'yellow,green'       ||
+            steps.calcs.outputs.swear_score > 1 && 'yellow,green,green' ||
+            'green'
+            }}
+          path: .github/badges/swear_score.svg
+
       - name: "Generate Swear Count Badge"
         uses: emibcn/badge-action@v1
         with:
           label: "⍣ Swear Count"
-          status: "${{ needs.FileStats.outputs.swear_count' }}"
+          status: "${{ needs.FileStats.outputs.swear_count }}"
           color: ${{
             needs.FileStats.outputs.swear_count > 99 && 'red'          ||
             needs.FileStats.outputs.swear_count > 69 && 'orange,red'       ||
