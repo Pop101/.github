@@ -113,9 +113,9 @@ jobs:
           echo "Note Count: $noteCount"
           echo ""
 
-          echo "##[set-output name=errors;]$errorCount"
-          echo "##[set-output name=warnings;]$warningCount"
-          echo "##[set-output name=notes;]$noteCount"
+          echo "errors=$errorCount" >> $GITHUB_OUTPUT 
+          echo "warnings=$warningCount" >> $GITHUB_OUTPUT 
+          echo "notes=$noteCount" >> $GITHUB_OUTPUT
 
   Make:
     # A job to execute the current make file and count the number of warnings
@@ -143,7 +143,6 @@ jobs:
     name: "Git Statistics"
 
     outputs:
-      files: ${{ steps.files.outputs.files }}
       commits: ${{ steps.commits.outputs.count }}
       merges: ${{ steps.commits.outputs.merges }}
 
@@ -162,7 +161,7 @@ jobs:
       - name: "File List"
         id: files
         run: |
-          echo "##[set-output name=files;]$(git ls-files | grep -v "^.github/")"
+          echo "files=$(git ls-files | grep -v "^.github/")" >> $GITHUB_OUTPUT
 
       - name: "Issue Count"
         id: issues
@@ -179,8 +178,8 @@ jobs:
           declare COUNT_MERGES=$(git rev-list --count HEAD)
           declare MERGES=$(($COUNT_MERGES - $COUNT_NO_MERGES))
 
-          echo "##[set-output name=count;]$COUNT_NO_MERGES"
-          echo "##[set-output name=merges;]$MERGES"
+          echo "count=$COUNT_NO_MERGES" >> $GITHUB_OUTPUT 
+          echo "merges=$MERGES" >> $GITHUB_OUTPUT
 
       - name: "Commits this year"
         id: commits-year
@@ -188,19 +187,19 @@ jobs:
           declare YEAR=$(date +%Y)
           declare COUNT=$(git rev-list --count --since="$YEAR-01-01" HEAD)
 
-          echo "##[set-output name=count;]$COUNT"
+          echo "count=$COUNT" >> $GITHUB_OUTPUT
 
       - name: "Branch Count"
         id: branches
         run: |
           declare COUNT=$(git branch --list --no-color | wc -l)
-          echo "##[set-output name=branches;]$COUNT"
+          echo "branches=$COUNT" >> $GITHUB_OUTPUT
 
       - name: "Contributor Count"
         id: contributors
         run: |
           git shortlog -s HEAD
-          echo "##[set-output name=contrib;]$(git shortlog -s HEAD | wc -l)"
+          echo "contrib=$(git shortlog -s HEAD | wc -l)" >> $GITHUB_OUTPUT
 
   FileStats:
     # A job to scan files for interesting statistics
@@ -257,15 +256,21 @@ jobs:
 
           echo "file_count=$(echo $FILES | wc -l)" >> $GITHUB_OUTPUT
 
-          echo "Found $(echo $FILES | wc -l) tracked files" >> $GITHUB_STEP_SUMMARY
-          echo "Found $(echo $TEXTFILES | wc -l) textlike files" >> $GITHUB_STEP_SUMMARY
+          echo "Found \`$(echo $FILES | wc -l)\` tracked files" >> $GITHUB_STEP_SUMMARY
+          echo "Found \`$(echo $TEXTFILES | wc -l)\` textlike files" >> $GITHUB_STEP_SUMMARY
+
+          echo "List of tracked files: \`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "$FILES" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
 
       - name: "Line Count"
         id: lines
         env:
           FILES: ${{ steps.files.outputs.text_files }}
         run: |
-          echo "##[set-output name=lines;]$(echo $FILES | xargs cat | wc -l)"
+          echo "lines=$(echo $FILES | xargs cat | wc -l)" >> $GITHUB_OUTPUT
+
+          echo "Found \`$(echo $FILES | xargs cat | wc -l)\` lines of text" >> $GITHUB_STEP_SUMMARY
 
       - name: "Word Count"
         id: words
@@ -283,10 +288,10 @@ jobs:
           declare UNIQUE_WORDS=$(echo $RAW_WORDS | tr ' ' '\n' | sort -u | wc -l)
           # UNIQUE_WORDS=$(($UNIQUE_WORDS - 1))
 
-          echo "##[set-output name=words;]$WORDS"
-          echo "##[set-output name=chars;]$CHARS"
-          echo "##[set-output name=avg_word_length;]$AVG_WORD_LENGTH"
-          echo "##[set-output name=unique_words;]$UNIQUE_WORDS"
+          echo "words=$WORDS" >> $GITHUB_OUTPUT
+          echo "chars=$CHARS" >> $GITHUB_OUTPUT
+          echo "avg_word_length=$AVG_WORD_LENGTH" >> $GITHUB_OUTPUT
+          echo "unique_words=$UNIQUE_WORDS" >> $GITHUB_OUTPUT
 
       - name: "Character Count"
         id: char_count
@@ -300,12 +305,12 @@ jobs:
           declare WHITESPACE_CHARS=$(echo $FILES | xargs cat | tr -cd '[:space:]' | wc -c)
           declare MEANINGFUL_WHITESPACE=$(echo $FILES | xargs cat | egrep -c '[^[:space:]][[:space:]]+[^[:space:]]')
 
-          echo "##[set-output name=alpha_chars;]$ALPHA_CHARS"
-          echo "##[set-output name=numeric_chars;]$NUMERIC_CHARS"
-          echo "##[set-output name=punct_chars;]$PUNCT_CHARS"
-          echo "##[set-output name=special_chars;]$SPECIAL_CHARS"
-          echo "##[set-output name=whitespace_chars;]$WHITESPACE_CHARS"
-          echo "##[set-output name=meaningful_whitespace;]$MEANINGFUL_WHITESPACE"
+          echo "alpha_chars=$ALPHA_CHARS" >> $GITHUB_OUTPUT
+          echo "numeric_chars=$NUMERIC_CHARS" >> $GITHUB_OUTPUT
+          echo "punct_chars=$PUNCT_CHARS" >> $GITHUB_OUTPUT
+          echo "special_chars=$SPECIAL_CHARS" >> $GITHUB_OUTPUT
+          echo "whitespace_chars=$WHITESPACE_CHARS" >> $GITHUB_OUTPUT
+          echo "meaningful_whitespace=$MEANINGFUL_WHITESPACE" >> $GITHUB_OUTPUT
 
   GenBadges:
     # A job to generate badges for the current repository.
@@ -340,12 +345,12 @@ jobs:
           declare QL_WARNINGS=${QL_WARNINGS:-0}
           declare QL_ERRORS=${QL_ERRORS:-0}
 
-          echo "##[set-output name=warnings;]$MK_WARNINGS"
-          echo "##[set-output name=errors;]$MK_ERRORS"
+          echo "warnings=$MK_WARNINGS" >> $GITHUB_OUTPUT
+          echo "errors=$MK_ERRORS" >> $GITHUB_OUTPUT
 
-          echo "##[set-output name=notes;]$QL_NOTES"
-          echo "##[set-output name=warnings;]$QL_WARNINGS"
-          echo "##[set-output name=errors;]$QL_ERRORS"
+          echo "notes=$QL_NOTES" >> $GITHUB_OUTPUT
+          echo "warnings=$QL_WARNINGS" >> $GITHUB_OUTPUT
+          echo "errors=$QL_ERRORS" >> $GITHUB_OUTPUT
 
       - name: "Calculations"
         id: calcs
@@ -371,7 +376,7 @@ jobs:
           WHITESPACE_CHARS: ${{ needs.FileStats.outputs.whitespace_chars }}
           M_WHITESPACE_CHARS: ${{ needs.FileStats.outputs.meaningful_whitespace }}
 
-          FILES: ${{ needs.GitCounts.outputs.files }}
+          FILES: ${{ needs.FileStats.outputs.files }}
 
         run: |
           mkdir -p ./.github/badges
@@ -440,21 +445,23 @@ jobs:
           fi
 
 
-          echo "##[set-output name=lines-per-pr;]$LINES_PER_PR"
-          echo "##[set-output name=total-errors;]$TOTAL_ERRORS"
-          echo "##[set-output name=total-warnings;]$TOTAL_WARNINGS"
-          echo "##[set-output name=warnings-percent;]$WARNS_PERCENT"
-          echo "##[set-output name=clean-percent;]$CLEAN_PERCENT"
-          echo "##[set-output name=dry_score;]$DRY_SCORE"
-          echo "##[set-output name=avg_line_len;]$AVG_LINE_LEN"
-          echo "##[set-output name=whitespace_score;]$WHITESPACE_SCORE"
-          echo "##[set-output name=whitespace_size;]$ASS_SCORE"
-          echo "##[set-output name=whitespace_size_str;]$ASS_STRING"
-          echo "##[set-output name=sanity_score;]$SANITY_SCORE"
-          echo "##[set-output name=file_count;]$F_COUNT"
-          echo "##[set-output name=pics;]$PICS"
-          echo "##[set-output name=pic_str_1;]$PIC_STR_1"
-          echo "##[set-output name=pic_str_2;]$PIC_STR_2"
+          echo "file_count=$F_COUNT" >> $GITHUB_OUTPUT
+          echo "avg_line_len=$AVG_LINE_LEN" >> $GITHUB_OUTPUT
+          echo "lines-per-pr=$LINES_PER_PR" >> $GITHUB_OUTPUT
+          echo "total-errors=$TOTAL_ERRORS" >> $GITHUB_OUTPUT
+          echo "total-warnings=$TOTAL_WARNINGS" >> $GITHUB_OUTPUT
+          echo "warnings-percent=$WARNS_PERCENT" >> $GITHUB_OUTPUT
+          echo "clean-percent=$CLEAN_PERCENT" >> $GITHUB_OUTPUT
+          echo "dry_score=$DRY_SCORE" >> $GITHUB_OUTPUT
+          echo "sanity_score=$SANITY_SCORE" >> $GITHUB_OUTPUT
+
+          echo "whitespace_score=$WHITESPACE_SCORE" >> $GITHUB_OUTPUT
+          echo "whitespace_size=$ASS_SCORE" >> $GITHUB_OUTPUT
+          echo "whitespace_size_str=$ASS_STRING" >> $GITHUB_OUTPUT
+
+          echo "pics=$PICS" >> $GITHUB_OUTPUT
+          echo "pic_str_1=$PIC_STR_1" >> $GITHUB_OUTPUT
+          echo "pic_str_2=$PIC_STR_2" >> $GITHUB_OUTPUT
 
       - name: "Generate Commit Badge"
         uses: emibcn/badge-action@v1
