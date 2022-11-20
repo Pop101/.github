@@ -1,20 +1,20 @@
-<svg width="185.8" height="20" viewBox="0 0 1858 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="⍤ Swear Score: New Language">
-  <title>⍤ Swear Score: New Language</title>
+<svg width="112.9" height="20" viewBox="0 0 1129 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="⍤ Swear Score: G">
+  <title>⍤ Swear Score: G</title>
   <linearGradient id="a" x2="0" y2="100%">
     <stop offset="0" stop-opacity=".1" stop-color="#EEE"/>
     <stop offset="1" stop-opacity=".1"/>
   </linearGradient>
-  <mask id="m"><rect width="1858" height="200" rx="30" fill="#FFF"/></mask>
+  <mask id="m"><rect width="1129" height="200" rx="30" fill="#FFF"/></mask>
   <g mask="url(#m)">
     <rect width="944" height="200" fill="#555"/>
-    <rect width="914" height="200" fill="#94E" x="944"/>
-    <rect width="1858" height="200" fill="url(#a)"/>
+    <rect width="185" height="200" fill="#3C1" x="944"/>
+    <rect width="1129" height="200" fill="url(#a)"/>
   </g>
   <g aria-hidden="true" fill="#fff" text-anchor="start" font-family="Verdana,DejaVu Sans,sans-serif" font-size="110">
     <text x="60" y="148" textLength="844" fill="#000" opacity="0.25">⍤ Swear Score</text>
     <text x="50" y="138" textLength="844">⍤ Swear Score</text>
-    <text x="999" y="148" textLength="814" fill="#000" opacity="0.25">New Language</text>
-    <text x="989" y="138" textLength="814">New Language</text>
+    <text x="999" y="148" textLength="85" fill="#000" opacity="0.25">G</text>
+    <text x="989" y="138" textLength="85">G</text>
   </g>
   
 </svg>
