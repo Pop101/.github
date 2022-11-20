@@ -305,13 +305,6 @@ jobs:
           echo "Of which, \`$UNIQUE_WORDS\` are unique" >> $GITHUB_STEP_SUMMARY
           echo "and \`$SWEAR_COUNT\` are swears" >> $GITHUB_STEP_SUMMARY
 
-          echo
-
-          echo "Top 10 most common words:" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          echo $WORD_COUNT_LIST | head -n 10 >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-
       - name: "Character Count"
         id: char_count
         env:
