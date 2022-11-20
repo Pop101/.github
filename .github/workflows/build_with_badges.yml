@@ -228,6 +228,7 @@ jobs:
       chars: ${{ steps.words.outputs.chars }}
       avg_word_length: ${{ steps.words.outputs.avg_word_length }}
       unique_words: ${{ steps.words.outputs.unique_words }}
+      swear_words: ${{ steps.words.outputs.swear_count }}
 
       alpha_chars: ${{ steps.char_count.outputs.alpha_chars }}
       numeric_chars: ${{ steps.char_count.outputs.numeric_chars }}
@@ -288,15 +289,29 @@ jobs:
 
           declare AVG_WORD_LENGTH=$(( 100 * ($CHARS - $WORDS) / $WORDS ))
 
-          echo "Average Word Length: $AVG_WORD_LENGTH"
+          declare WORD_COUNT_LIST=$(echo $RAW_WORDS | awk '{print tolower($0)}' | tr ' ' '\n' | sort | uniq -c | sort -bgr)
+          declare UNIQUE_WORDS=$(echo $WORD_COUNT_LIST | wc -l)
+          UNIQUE_WORDS=$(($UNIQUE_WORDS - 1))
 
-          declare UNIQUE_WORDS=$(echo $RAW_WORDS | tr ' ' '\n' | sort -u | wc -l)
-          # UNIQUE_WORDS=$(($UNIQUE_WORDS - 1))
+          declare SWEAR_COUNT=$(echo $WORD_COUNT_LIST | grep -E "[fuck|shit|bitch|cunt|pussy|dick|cock|bastard|twat|damn|ass|arse|prick]" | awk '{print $1}' | paste -sd+ - | bc)
 
           echo "words=$WORDS" >> $GITHUB_OUTPUT
           echo "chars=$CHARS" >> $GITHUB_OUTPUT
           echo "avg_word_length=$AVG_WORD_LENGTH" >> $GITHUB_OUTPUT
           echo "unique_words=$UNIQUE_WORDS" >> $GITHUB_OUTPUT
+          echo "swear_count=$SWEAR_COUNT" >> $GITHUB_OUTPUT
+
+          echo "Average Word Length: \`$AVG_WORD_LENGTH\`" >> $GITHUB_STEP_SUMMARY
+          echo "Found \`$WORDS\` words" >> $GITHUB_STEP_SUMMARY
+          echo "Of which, \`$UNIQUE_WORDS\` are unique" >> $GITHUB_STEP_SUMMARY
+          echo "and \`$SWEAR_WORDS\` are swears" >> $GITHUB_STEP_SUMMARY
+
+          echo
+
+          echo "Top 10 most common words:" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo $WORD_COUNT_LIST | head -n 10 >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
 
       - name: "Character Count"
         id: char_count
@@ -372,6 +387,7 @@ jobs:
 
           UNIQUE_WORDS: ${{ needs.FileStats.outputs.unique_words }}
           WORDS: ${{ needs.FileStats.outputs.words }}
+          SWEARS: ${{ needs.FileStats.outputs.swear_words }}
 
           CHARS: ${{ needs.FileStats.outputs.chars }}
           ALPHA_CHARS: ${{ needs.FileStats.outputs.alpha_chars }}
@@ -409,6 +425,11 @@ jobs:
           declare DRY_SCORE=100
           if [ $WORDS -gt 0 ]; then
             DRY_SCORE=$(( 100 * $UNIQUE_WORDS / $WORDS ))
+          fi
+
+          declare SWEAR_SCORE=100
+          if [ $WORDS -gt 0 ]; then
+            SWEAR_SCORE=$(( 100 * $SWEAR / $WORDS ))
           fi
 
           declare MEANINGLESS_WHITESPACE=$(( $WHITESPACE_CHARS - $M_WHITESPACE_CHARS ))
@@ -454,6 +475,7 @@ jobs:
           echo "warnings-percent=$WARNS_PERCENT" >> $GITHUB_OUTPUT
           echo "clean-percent=$CLEAN_PERCENT" >> $GITHUB_OUTPUT
           echo "dry_score=$DRY_SCORE" >> $GITHUB_OUTPUT
+          echo "swear_score=$SWEAR_SCORE" >> $GITHUB_OUTPUT
           echo "sanity_score=$SANITY_SCORE" >> $GITHUB_OUTPUT
 
           echo "whitespace_score=$WHITESPACE_SCORE" >> $GITHUB_OUTPUT
@@ -637,6 +659,41 @@ jobs:
             'black,red' }}
           path: .github/badges/var_score.svg
 
+      - name: "Generate Swear Score Badge"
+        uses: emibcn/badge-action@v1
+        with:
+          label: "⍤ Swear Score"
+          status: ${{
+            steps.calcs.outputs.swear_score > 40 && 'New Language'  ||
+            steps.calcs.outputs.swear_score > 10 && 'Sailor'        ||
+            steps.calcs.outputs.swear_score > 5 && 'Fresh outta HS' ||
+            steps.calcs.outputs.swear_score > 3 && 'PG-13'          ||
+            steps.calcs.outputs.swear_score > 1 && 'PG'             ||
+            'G' }}
+          color: ${{
+            steps.calcs.outputs.dry_score > 40 && 'purple'          ||
+            steps.calcs.outputs.dry_score > 10 && 'yellow,orange'   ||
+            steps.calcs.outputs.dry_score > 5 && 'orange,yellow'    ||
+            steps.calcs.outputs.dry_score > 3 && 'yellow,green'     ||
+            steps.calcs.outputs.dry_score > 1 && 'green'            ||
+            'green' }}
+          path: .github/badges/swear_score.svg
+
+      - name: "Generate Swear Count Badge"
+        uses: emibcn/badge-action@v1
+        with:
+          label: "⍣ Swear Count"
+          status: ${{ needs.FileStats.outputs.swear_count' }}
+          color: ${{
+            needs.FileStats.outputs.swear_count > 99 && 'red'          ||
+            needs.FileStats.outputs.swear_count > 69 && 'orange,red'       ||
+            needs.FileStats.outputs.swear_count > 49 && 'orange'       ||
+            needs.FileStats.outputs.swear_count > 29 && 'yellow,orange'    ||
+            needs.FileStats.outputs.swear_count > 19 && 'yellow'       ||
+            needs.FileStats.outputs.swear_count > 9 && 'yellow,green'       ||
+            'green' }}
+          path: .github/badges/swear_count.svg
+
       - name: "Generate Whitespace Coverage Badge"
         uses: emibcn/badge-action@v1
         with:
@@ -718,7 +775,7 @@ jobs:
       - name: "Generate File Count Badge"
         uses: emibcn/badge-action@v1
         with:
-          label: "▥ File Count"
+          label: "⍞ File Count"
           status: "${{ needs.FileStats.outputs.file_count }}"
           color: ${{
             needs.FileStats.outputs.file_count > 1000 && 'red'                     ||
@@ -729,6 +786,23 @@ jobs:
             needs.FileStats.outputs.file_count > 50   && 'yellow'                  ||
             needs.FileStats.outputs.file_count > 20   && 'yellow,yellow,green'     ||
             needs.FileStats.outputs.file_count > 10   && 'yellow,green'            ||
+            'green' }}
+          path: .github/badges/file_count.svg
+
+      - name: "Generate File Count Badge"
+        uses: emibcn/badge-action@v1
+        with:
+          label: "𝘛 Text Files"
+          status: "${{ needs.FileStats.outputs.text_file_count }}"
+          color: ${{
+            needs.FileStats.outputs.text_file_count > 1000 && 'red'                     ||
+            needs.FileStats.outputs.text_file_count > 500  && 'red,red,orange'          ||
+            needs.FileStats.outputs.text_file_count > 300  && 'orange'                  ||
+            needs.FileStats.outputs.text_file_count > 200  && 'orange,orange,yellow'    ||
+            needs.FileStats.outputs.text_file_count > 100  && 'orange,yellow'           ||
+            needs.FileStats.outputs.text_file_count > 50   && 'yellow'                  ||
+            needs.FileStats.outputs.text_file_count > 20   && 'yellow,yellow,green'     ||
+            needs.FileStats.outputs.text_file_count > 10   && 'yellow,green'            ||
             'green' }}
           path: .github/badges/file_count.svg
 

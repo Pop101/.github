@@ -18,3 +18,5 @@
 [<img alt="Variable Score" src=".github/badges/var_score.svg" />](../..)
 [<img alt="Whitespace Coverage" src=".github/badges/whitespace_coverage.svg" />](../..)
 [<img alt="Whitespace Size" src=".github/badges/whitespace_size.svg" />](../..)
+[<img alt="Swear Count" src=".github/badges/swear_count.svg" />](../..)
+[<img alt="Swear Score" src=".github/badges/swear_score.svg" />](../..)
