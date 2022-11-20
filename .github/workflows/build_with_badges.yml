@@ -221,6 +221,8 @@ jobs:
     outputs:
       files: ${{ steps.files.outputs.files }}
       text_files: ${{ steps.files.outputs.text_files }}
+      file_count: ${{ steps.files.outputs.file_count }}
+      text_file_count: ${{ steps.files.outputs.text_file_count }}
       lines: ${{ steps.lines.outputs.lines }}
       words: ${{ steps.words.outputs.words }}
       chars: ${{ steps.words.outputs.chars }}
@@ -265,11 +267,6 @@ jobs:
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
           echo $(TEXTFILES) >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-
-          echo $(git ls-tree --full-tree --name-only -r HEAD)
-          echo $(git ls-tree --full-tree --name-only -r HEAD | wc -l)
-          echo $(FILES)
-          echo $(FILES | wc -l)
 
       - name: "Line Count"
         id: lines
@@ -385,6 +382,7 @@ jobs:
           M_WHITESPACE_CHARS: ${{ needs.FileStats.outputs.meaningful_whitespace }}
 
           FILES: ${{ needs.FileStats.outputs.files }}
+          TEXTFILES: ${{ needs.FileStats.outputs.text_files }}
 
         run: |
           mkdir -p ./.github/badges
@@ -439,9 +437,6 @@ jobs:
             SANITY_SCORE=$(( 100 * $ALPHA_CHARS / $CHARS ))
           fi
 
-          # Count number of files
-          declare F_COUNT=$(echo $FILES | wc -l)
-
           # Count number of pictures
           declare PICS=$(echo $FILES | egrep -c '\.(png|jpg|jpeg|gif|svg|webp)$')
 
@@ -452,8 +447,6 @@ jobs:
             PIC_STR_2="No Clicks"
           fi
 
-
-          echo "file_count=$F_COUNT" >> $GITHUB_OUTPUT
           echo "avg_line_len=$AVG_LINE_LEN" >> $GITHUB_OUTPUT
           echo "lines-per-pr=$LINES_PER_PR" >> $GITHUB_OUTPUT
           echo "total-errors=$TOTAL_ERRORS" >> $GITHUB_OUTPUT
@@ -726,16 +719,16 @@ jobs:
         uses: emibcn/badge-action@v1
         with:
           label: "▥ File Count"
-          status: "${{ steps.calcs.outputs.file_count }}"
+          status: "${{ needs.FileStats.outputs.file_count }}"
           color: ${{
-            steps.calcs.outputs.file_count > 1000 && 'red'                     ||
-            steps.calcs.outputs.file_count > 500  && 'red,red,orange'          ||
-            steps.calcs.outputs.file_count > 300  && 'orange'                  ||
-            steps.calcs.outputs.file_count > 200  && 'orange,orange,yellow'    ||
-            steps.calcs.outputs.file_count > 100  && 'orange,yellow'           ||
-            steps.calcs.outputs.file_count > 50   && 'yellow'                  ||
-            steps.calcs.outputs.file_count > 20   && 'yellow,yellow,green'     ||
-            steps.calcs.outputs.file_count > 10   && 'yellow,green'            ||
+            needs.FileStats.outputs.file_count > 1000 && 'red'                     ||
+            needs.FileStats.outputs.file_count > 500  && 'red,red,orange'          ||
+            needs.FileStats.outputs.file_count > 300  && 'orange'                  ||
+            needs.FileStats.outputs.file_count > 200  && 'orange,orange,yellow'    ||
+            needs.FileStats.outputs.file_count > 100  && 'orange,yellow'           ||
+            needs.FileStats.outputs.file_count > 50   && 'yellow'                  ||
+            needs.FileStats.outputs.file_count > 20   && 'yellow,yellow,green'     ||
+            needs.FileStats.outputs.file_count > 10   && 'yellow,green'            ||
             'green' }}
           path: .github/badges/file_count.svg
 
