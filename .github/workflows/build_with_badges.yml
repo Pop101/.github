@@ -289,11 +289,10 @@ jobs:
 
           declare AVG_WORD_LENGTH=$(( 100 * ($CHARS - $WORDS) / $WORDS ))
 
-          declare WORD_COUNT_LIST=$(echo $RAW_WORDS | awk '{print tolower($0)}' | tr ' ' '\n' | sort | uniq -c | sort -bgr)
-          declare UNIQUE_WORDS=$(echo $WORD_COUNT_LIST | wc -l)
-          UNIQUE_WORDS=$(($UNIQUE_WORDS - 1))
+          declare UNIQUE_WORDS=$(echo $RAW_WORDS | awk '{print tolower($0)}' | tr ' ' '\n' | sort | uniq | wc -l)
+          # UNIQUE_WORDS=$(($UNIQUE_WORDS - 1))
 
-          declare SWEAR_COUNT=$(echo $RAW_WORDS | tr ' ' '\n' | grep -cEi "[fuck|shit|bitch|cunt|pussy|dick|cock|bastard|twat|damn|ass|arse|prick]")
+          declare SWEAR_COUNT=$(echo $RAW_WORDS | tr ' ' '\n' | grep -cEi "^[fuck|shit|bitch|cunt|pussy|dick|cock|bastard|twat|damn|ass|arse|prick]$")
 
           echo "words=$WORDS" >> $GITHUB_OUTPUT
           echo "chars=$CHARS" >> $GITHUB_OUTPUT
