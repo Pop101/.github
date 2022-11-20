@@ -293,7 +293,7 @@ jobs:
           declare UNIQUE_WORDS=$(echo $WORD_COUNT_LIST | wc -l)
           UNIQUE_WORDS=$(($UNIQUE_WORDS - 1))
 
-          declare SWEAR_COUNT=$(echo $WORD_COUNT_LIST | grep -E "[fuck|shit|bitch|cunt|pussy|dick|cock|bastard|twat|damn|ass|arse|prick]" | awk '{print $1}' | paste -sd+ - | bc)
+          declare SWEAR_COUNT=$(echo $RAW_WORDS | tr ' ' '\n' | grep -cEi "[fuck|shit|bitch|cunt|pussy|dick|cock|bastard|twat|damn|ass|arse|prick]")
 
           echo "words=$WORDS" >> $GITHUB_OUTPUT
           echo "chars=$CHARS" >> $GITHUB_OUTPUT
@@ -304,13 +304,13 @@ jobs:
           echo "Average Word Length: \`$AVG_WORD_LENGTH\`" >> $GITHUB_STEP_SUMMARY
           echo "Found \`$WORDS\` words" >> $GITHUB_STEP_SUMMARY
           echo "Of which, \`$UNIQUE_WORDS\` are unique" >> $GITHUB_STEP_SUMMARY
-          echo "and \`$SWEAR_WORDS\` are swears" >> $GITHUB_STEP_SUMMARY
+          echo "and \`$SWEAR_COUNT\` are swears" >> $GITHUB_STEP_SUMMARY
 
           echo
 
           echo "Top 10 most common words:" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          echo $WORD_COUNT_LIST | head -n 10 >> $GITHUB_STEP_SUMMARY
+          echo $WORD_COUNT_LIST | head -n 10 | unix2dos >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
 
       - name: "Character Count"
