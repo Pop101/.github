@@ -239,8 +239,6 @@ jobs:
     steps:
       - name: "Checkout"
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
 
       - name: "File List"
         id: files
@@ -259,7 +257,9 @@ jobs:
           echo "file_count=$(echo $FILES | wc -l)" >> $GITHUB_OUTPUT
           echo "text_file_count=$(echo $TEXTFILES | wc -l)" >> $GITHUB_OUTPUT\
 
-          echo $FILES
+          echo $(echo $FILES | wc -l) files found
+          echo $(echo $TEXTFILES | wc -l) text files found
+          echo $(git ls-files)
 
           echo "Found \`$(echo $FILES | wc -l)\` tracked files" >> $GITHUB_STEP_SUMMARY
           echo "Found \`$(echo $TEXTFILES | wc -l)\` textlike files" >> $GITHUB_STEP_SUMMARY
