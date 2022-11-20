@@ -161,7 +161,9 @@ jobs:
       - name: "File List"
         id: files
         run: |
-          echo "files=$(git ls-files | grep -v "^.github/")" >> $GITHUB_OUTPUT
+          echo "files<<EOFDELIM" >> $GITHUB_OUTPUT
+          echo "$(git ls-files | grep -v "^.github/")" >> $GITHUB_OUTPUT
+          echo "EOFDELIM" >> $GITHUB_OUTPUT
 
       - name: "Issue Count"
         id: issues
