@@ -683,7 +683,7 @@ jobs:
         uses: emibcn/badge-action@v1
         with:
           label: "⍣ Swear Count"
-          status: ${{ needs.FileStats.outputs.swear_count' }}
+          status: "${{ needs.FileStats.outputs.swear_count' }}"
           color: ${{
             needs.FileStats.outputs.swear_count > 99 && 'red'          ||
             needs.FileStats.outputs.swear_count > 69 && 'orange,red'       ||
