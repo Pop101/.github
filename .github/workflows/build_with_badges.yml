@@ -255,10 +255,10 @@ jobs:
           echo "$TEXTFILES" >> $GITHUB_OUTPUT
           echo "EOFDELIM" >> $GITHUB_OUTPUT
 
-          echo "file_count=$(echo '$FILES' | wc -l)" >> $GITHUB_OUTPUT
+          echo "file_count=$(echo $FILES | wc -l)" >> $GITHUB_OUTPUT
 
-          echo "Found `$(echo '$FILES' | wc -l)` tracked files" >> $GITHUB_STEP_SUMMARY
-          echo "Found `$(echo '$TEXTFILES' | wc -l)` textlike files" >> $GITHUB_STEP_SUMMARY
+          echo "Found $(echo $FILES | wc -l) tracked files" >> $GITHUB_STEP_SUMMARY
+          echo "Found $(echo $TEXTFILES | wc -l) textlike files" >> $GITHUB_STEP_SUMMARY
 
       - name: "Line Count"
         id: lines
