@@ -25,7 +25,7 @@
 Insert quick blurb of what this repository is for.
 
 ## Table of Contents
-- [Table of Contents](#table-of-contents)
+
 - [Overview](#overview)
 - [Technologies](#technologies)
 - [Getting Started](#getting-started)
